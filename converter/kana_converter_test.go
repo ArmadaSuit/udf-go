@@ -683,3 +683,312 @@ func TestZenkakuHiraganaToZenkakuKatakana(t *testing.T) {
 		})
 	}
 }
+
+func TestNewKanaConverters(t *testing.T) {
+	type args struct {
+		in   string
+		mode string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    string
+		wantErr bool
+	}{
+		{
+			name: "hankaku english -> zenkaku english and hankaku space -> zenkaku space",
+			args: args{in: "The quick brown fox jumps over the lazy dog.", mode: "RS"},
+			want: "Ｔｈｅ　ｑｕｉｃｋ　ｂｒｏｗｎ　ｆｏｘ　ｊｕｍｐｓ　ｏｖｅｒ　ｔｈｅ　ｌａｚｙ　ｄｏｇ.",
+		},
+		{
+			name: "hankaku english -> zenkaku english and hankaku space -> zenkaku space",
+			args: args{in: "１６００ Ｐｅｎｎｓｙｌｖａｎｉａ Ａｖｅｎｕｅ", mode: "rn"},
+			want: "1600 Pennsylvania Avenue",
+		},
+		{
+			name: "hankaku english -> zenkaku english and hankaku space -> zenkaku space: shorthand version",
+			args: args{in: "１６００ Ｐｅｎｎｓｙｌｖａｎｉａ Ａｖｅｎｕｅ", mode: "a"},
+			want: "1600 Pennsylvania Avenue",
+		},
+		{
+			name: "hankaku english -> zenkaku english and hankaku space -> zenkaku space: verbose version",
+			args: args{in: "１６００ Ｐｅｎｎｓｙｌｖａｎｉａ Ａｖｅｎｕｅ", mode: "arn"},
+			want: "1600 Pennsylvania Avenue",
+		},
+		{
+			name: "hankaku english -> zenkaku english and hankaku space -> zenkaku space",
+			args: args{in: "1600 Ｐｅｎｎｓｙｌｖａｎｉａ Ａｖｅｎｕｅ", mode: "rN"},
+			want: "１６００ Pennsylvania Avenue",
+		},
+		{
+			name: "hankaku english -> zenkaku english and hankaku space -> zenkaku space",
+			args: args{in: "１６００ Pennsylvania Avenue", mode: "Rn"},
+			want: "1600 Ｐｅｎｎｓｙｌｖａｎｉａ Ａｖｅｎｕｅ",
+		},
+		{
+			name: "zenkaku hiragana -> zekaku katakana and zenkaku space -> hankanu space",
+			args: args{in: "いろはにほへと　ちりぬるを　わかよたれそ　つねならむ　うゐのおくやま　けふこえて　あさきゆめみし　ゑひもせす", mode: "sC"},
+			want: "イロハニホヘト チリヌルヲ ワカヨタレソ ツネナラム ウヰノオクヤマ ケフコエテ アサキユメミシ ヱヒモセス",
+		},
+		{
+			name: "zenkaku katakana -> zenkaku hiragana",
+			args: args{in: "イロハニホヘト　チリヌルヲ　ワカヨタレソ　ツネナラム　ウヰノオクヤマ　ケフコエテ　アサキユメミシ　ヱヒモセス", mode: "c"},
+			want: "いろはにほへと　ちりぬるを　わかよたれそ　つねならむ　うゐのおくやま　けふこえて　あさきゆめみし　ゑひもせす",
+		},
+		{
+			name: "zenkaku katakana and zenkaku hiragana -> hankaku katakana",
+			args: args{in: "「ボールペンの芯の太さは、0.7mmです。」", mode: "k"},
+			want: "｢ﾎﾞｰﾙﾍﾟﾝの芯の太さは､0.7mmです｡｣",
+		},
+		{
+			name: "hankaku katakana -> zenkaku katakana: ligature version",
+			args: args{in: "｢ﾎﾞｰﾙﾍﾟﾝの芯の太さは､0.7mmです｡｣", mode: "KV"},
+			want: "「ボールペンの芯の太さは、0.7mmです。」",
+		},
+		{
+			name: "hankaku katakana -> zenkaku katakana",
+			args: args{in: "｢ﾎﾞｰﾙﾍﾟﾝの芯の太さは､0.7mmです｡｣", mode: "K"},
+			want: "「ホ゛ールヘ゜ンの芯の太さは、0.7mmです。」",
+		},
+		{
+			name: "hankaku katakana -> zenkaku hiragana: ligature version",
+			args: args{in: "｢ボールペンﾉ芯ﾉ太ｻﾊ､0.7mmﾃﾞｽ｡｣", mode: "HV"},
+			want: "「ボールペンの芯の太さは、0.7mmです。」",
+		},
+		{
+			name: "hankaku katakana -> zenkaku hiragana",
+			args: args{in: "｢ボールペンﾉ芯ﾉ太ｻﾊ､0.7mmﾃﾞｽ｡｣", mode: "H"},
+			want: "「ボールペンの芯の太さは、0.7mmて゛す。」",
+		},
+		{
+			name: "zenkaku katakana -> zekaku hiragana",
+			args: args{in: "「ボールペンの芯の太さは、0.7mmです。」", mode: "c"},
+			want: "「ぼーるぺんの芯の太さは、0.7mmです。」",
+		},
+		{
+			name: "zenkaku hiragana -> zekaku katakana",
+			args: args{in: "「ボールペンの芯の太さは、0.7mmです。」", mode: "C"},
+			want: "「ボールペンノ芯ノ太サハ、0.7mmデス。」",
+		},
+		{
+			name: "zenkaku katakana and zenkaku hiragana -> hankaku katakana",
+			args: args{in: "「ボールペンの芯の太さは、0.7mmです。」", mode: "kh"},
+			want: "｢ﾎﾞｰﾙﾍﾟﾝﾉ芯ﾉ太ｻﾊ､0.7mmﾃﾞｽ｡｣",
+		},
+		{
+			name: "hankaku english -> zenkaku english, hankaku number -> zenkaku number and zenkaku hiragana -> zekaku katakana",
+			args: args{in: "「ボールペンﾉ芯ﾉ太ｻﾊ、0.7mmﾃﾞｽ。」", mode: "kHV"},
+			want: "｢ﾎﾞｰﾙﾍﾟﾝの芯の太さは､0.7mmです｡｣",
+		},
+		{
+			name: "hankaku english -> zenkaku english, hankaku number -> zenkaku number and zenkaku hiragana -> zekaku katakana",
+			args: args{in: "「ﾎﾞｰﾙﾍﾟﾝノ芯ノ太サハ、0.7mmデス。」", mode: "KcV"},
+			want: "「ボールペンの芯の太さは、0.7mmです。」",
+		},
+		{
+			name: "hankaku english -> zenkakuenglish, hankaku number -> zenkaku number and zenkaku hiragana -> zekaku katakana",
+			args: args{in: "「ﾎﾞｰﾙﾍﾟﾝの芯の太さは、0.7mmです。」", mode: "KCV"},
+			want: "「ボールペンノ芯ノ太サハ、0.7mmデス。」",
+		},
+		{
+			name: "hankaku katakana -> zenkaku hiragana and zenkaku katakana -> zekaku hiragana",
+			args: args{in: "｢ﾎﾞｰﾙﾍﾟﾝノ芯ノ太サハ､0.7mmデス｡｣", mode: "HVc"},
+			want: "「ぼーるぺんの芯の太さは、0.7mmです。」",
+		},
+		{
+			name: "hankaku katakana -> zenkaku hiragana and zenkaku hiragana -> zekaku katakana",
+			args: args{in: "｢ぼーるぺんﾉ芯ﾉ太ｻﾊ､0.7mmﾃﾞｽ｡｣", mode: "HVC"},
+			want: "「ボールペンの芯の太さは、0.7mmです。」",
+		},
+		{
+			name: "hankaku english -> zenkaku english, hankaku number -> zenkaku number and zenkaku katakana -> zekaku hiragana",
+			args: args{in: "「ボールペンの芯の太さは、0.7mmです。」", mode: "Ac"},
+			want: "「ぼーるぺんの芯の太さは、０.７ｍｍです。」",
+		},
+		{
+			name: "hankaku english -> zenkakuenglish, hankaku number -> zenkaku number and zenkaku hiragana -> zekaku katakana",
+			args: args{in: "「ボールペンの芯の太さは、0.7mmです。」", mode: "AC"},
+			want: "「ボールペンノ芯ノ太サハ、０.７ｍｍデス。」",
+		},
+		{
+			name:    "invalid option for english",
+			args:    args{mode: "rR"},
+			wantErr: true,
+		},
+		{
+			name:    "invalid option for english: defferent order case",
+			args:    args{mode: "Rr"},
+			wantErr: true,
+		},
+		{
+			name:    "invalid option for number",
+			args:    args{mode: "nN"},
+			wantErr: true,
+		},
+		{
+			name:    "invalid option for number: defferent order case",
+			args:    args{mode: "Nn"},
+			wantErr: true,
+		},
+		{
+			name:    "invalid option for english number",
+			args:    args{mode: "aA"},
+			wantErr: true,
+		},
+		{
+			name:    "invalid option for english number: defferent order case",
+			args:    args{mode: "Aa"},
+			wantErr: true,
+		},
+		{
+			name:    "invalid option for cyclic conversion of english: case 1",
+			args:    args{mode: "rA"},
+			wantErr: true,
+		},
+		{
+			name:    "invalid option for cyclic conversion of english: case 1: defferent order case",
+			args:    args{mode: "Ar"},
+			wantErr: true,
+		},
+		{
+			name:    "invalid option for cyclic conversion of english: case 2",
+			args:    args{mode: "Ra"},
+			wantErr: true,
+		},
+		{
+			name:    "invalid option for cyclic conversion of english: case 2: defferent order case",
+			args:    args{mode: "aR"},
+			wantErr: true,
+		},
+		{
+			name:    "invalid option for cyclic conversion of number: case 1",
+			args:    args{mode: "nA"},
+			wantErr: true,
+		},
+		{
+			name:    "invalid option for cyclic conversion of number: case 1: defferent order case",
+			args:    args{mode: "An"},
+			wantErr: true,
+		},
+		{
+			name:    "invalid option for cyclic conversion of number: case 2",
+			args:    args{mode: "Na"},
+			wantErr: true,
+		},
+		{
+			name:    "invalid option for cyclic conversion of number: case 2: defferent order case",
+			args:    args{mode: "aN"},
+			wantErr: true,
+		},
+		{
+			name:    "invalid option for space",
+			args:    args{mode: "sS"},
+			wantErr: true,
+		},
+		{
+			name:    "invalid option for space: defferent order case",
+			args:    args{mode: "Ss"},
+			wantErr: true,
+		},
+		{
+			name:    "invalid option for katakana",
+			args:    args{mode: "kK"},
+			wantErr: true,
+		},
+		{
+			name:    "invalid option for katakana: defferent order case",
+			args:    args{mode: "Kk"},
+			wantErr: true,
+		},
+		{
+			name:    "invalid option for hankaku katakana",
+			args:    args{mode: "KH"},
+			wantErr: true,
+		},
+		{
+			name:    "invalid option for hankaku katakana: defferent order case",
+			args:    args{mode: "HK"},
+			wantErr: true,
+		},
+		{
+			name:    "invalid option for zenkaku katakana",
+			args:    args{mode: "kc"},
+			wantErr: true,
+		},
+		{
+			name:    "invalid option for zenkaku katakana: defferent order case",
+			args:    args{mode: "ck"},
+			wantErr: true,
+		},
+		{
+			name:    "invalid option for ambiguous conversion: case 1",
+			args:    args{mode: "kC"},
+			wantErr: true,
+		},
+		{
+			name:    "invalid option for ambiguous conversion: case 1: defferent order case",
+			args:    args{mode: "Ck"},
+			wantErr: true,
+		},
+		{
+			name:    "invalid option for zenkaku hiragana - hankaku katakana",
+			args:    args{mode: "hH"},
+			wantErr: true,
+		},
+		{
+			name:    "invalid option for zenkaku hiragana - hankaku katakana: defferent order case",
+			args:    args{mode: "Hh"},
+			wantErr: true,
+		},
+		{
+			name:    "invalid option for ambiguous conversion: case 2",
+			args:    args{mode: "hc"},
+			wantErr: true,
+		},
+		{
+			name:    "invalid option for ambiguous conversion: case 2: defferent order case",
+			args:    args{mode: "ch"},
+			wantErr: true,
+		},
+		{
+			name:    "invalid option for zenkaku hiragana",
+			args:    args{mode: "hC"},
+			wantErr: true,
+		},
+		{
+			name:    "invalid option for zenkaku hiragana: defferent order case",
+			args:    args{mode: "Ch"},
+			wantErr: true,
+		},
+		{
+			name:    "invalid option for zenkaku katakana - zenkaku katakana",
+			args:    args{mode: "cC"},
+			wantErr: true,
+		},
+		{
+			name:    "invalid option for zenkaku katakana - zenkaku katakana: defferent order case",
+			args:    args{mode: "Cc"},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+
+			t.Parallel()
+
+			converters, err := converter.NewKanaConverters(tt.args.mode)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("NewKanaConverters() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			in := converter.Generate(tt.args.in)
+			for _, c := range converters {
+				in = c(in)
+			}
+			if got := converter.String(in); got != tt.want {
+				t.Errorf("%v is converted %v, want %v", tt.args.mode, got, tt.want)
+			}
+		})
+	}
+}

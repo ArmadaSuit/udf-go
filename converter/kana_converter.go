@@ -1052,3 +1052,91 @@ func ZenkakuHiraganaToZenkakuKatakana(in <-chan rune) <-chan rune {
 	}()
 	return out
 }
+
+func NewKanaConverters(mode string) ([]func(<-chan rune) <-chan rune, error) {
+	options, err := NewKanaConverterOptions(mode)
+	if err != nil {
+		return nil, err
+	}
+	var converters []func(<-chan rune) <-chan rune
+	if options.optr {
+		converters = append(converters, ZenkakuEnglishToHankakuEnglish)
+	}
+	if options.optR {
+		converters = append(converters, HankakuEnglishToZenkakuEnglish)
+	}
+	if options.optn {
+		converters = append(converters, ZenkakuNumberToHankakuNumber)
+	}
+	if options.optN {
+		converters = append(converters, HankakuNumberToZenkakuNumber)
+	}
+	if options.opta {
+		if !options.optr {
+			converters = append(converters, ZenkakuEnglishToHankakuEnglish)
+		}
+		if !options.optn {
+			converters = append(converters, ZenkakuNumberToHankakuNumber)
+		}
+	}
+	if options.optA {
+		if !options.optR {
+			converters = append(converters, HankakuEnglishToZenkakuEnglish)
+		}
+		if !options.optN {
+			converters = append(converters, HankakuNumberToZenkakuNumber)
+		}
+	}
+	if options.opts {
+		converters = append(converters, ZenkakuSpaceToHankakuSpace)
+	}
+	if options.optS {
+		converters = append(converters, HankakuSpaceToZenkakuSpace)
+	}
+
+	// kc, kC, KH, hc and hC are not combined
+	if options.optk {
+		if options.opth {
+			converters = append(converters, ZenkakuHiraganaToHankakuKatakana)
+		}
+		if options.optH {
+			converters = append(converters, func(in <-chan rune) <-chan rune { return HankakuKatakanaToZenkakuHiragana(in, options.optV) })
+		}
+		converters = append(converters, ZenkakuKatakanaToHankakuKatakana)
+		return converters, nil
+	}
+	if options.optK {
+		if options.optc {
+			converters = append(converters, ZenkakuKatakanaToZenkakuHiragana)
+		}
+		converters = append(converters, func(in <-chan rune) <-chan rune { return HankakuKatakanaToZenkakuKatakana(in, options.optV) })
+		if options.opth {
+			converters = append(converters, ZenkakuHiraganaToHankakuKatakana)
+		}
+		if options.optC {
+			converters = append(converters, ZenkakuHiraganaToZenkakuKatakana)
+		}
+		return converters, nil
+	}
+	if options.opth {
+		converters = append(converters, ZenkakuHiraganaToHankakuKatakana)
+		return converters, nil
+	}
+	if options.optH {
+		if options.optC {
+			converters = append(converters, ZenkakuHiraganaToZenkakuKatakana)
+		}
+		converters = append(converters, func(in <-chan rune) <-chan rune { return HankakuKatakanaToZenkakuHiragana(in, options.optV) })
+		if options.optc {
+			converters = append(converters, ZenkakuKatakanaToZenkakuHiragana)
+		}
+		return converters, nil
+	}
+	if options.optc {
+		converters = append(converters, ZenkakuKatakanaToZenkakuHiragana)
+	}
+	if options.optC {
+		converters = append(converters, ZenkakuHiraganaToZenkakuKatakana)
+	}
+	return converters, nil
+}
