@@ -1,78 +1,65 @@
 package converter
 
-func HankakuNumberToZenkakuNumber(in <-chan rune) <-chan rune {
-	out := make(chan rune)
-	go func() {
-		defer close(out)
-		for i := range in {
-			if i >= '0' && i <= '9' {
-				out <- i + 0xFEE0
-			} else {
-				out <- i
-			}
-		}
-	}()
-	return out
+type KanaConverterRune struct {
+	Rune        rune
+	IsConverted bool
 }
 
-func ZenkakuNumberToHankakuNumber(in <-chan rune) <-chan rune {
-	out := make(chan rune)
-	go func() {
-		defer close(out)
-		for i := range in {
-			if i >= '０' && i <= '９' {
-				out <- i - 0xFEE0
-			} else {
-				out <- i
-			}
-		}
-	}()
-	return out
-}
-
-func HankakuEnglishToZenkakuEnglish(in <-chan rune) <-chan rune {
-	out := make(chan rune)
-	go func() {
-		defer close(out)
-		for i := range in {
-			switch {
-			case i >= 'a' && i <= 'z':
-				out <- 'ａ' + i - 'a'
-			case i >= 'A' && i <= 'Z':
-				out <- 'Ａ' + i - 'A'
-			default:
-				out <- i
-			}
-		}
-	}()
-	return out
-}
-
-func ZenkakuEnglishToHankakuEnglish(in <-chan rune) <-chan rune {
-	out := make(chan rune)
-	go func() {
-		defer close(out)
-		for i := range in {
-			switch {
-			case i >= 'ａ' && i <= 'ｚ':
-				out <- 'a' + i - 'ａ'
-			case i >= 'Ａ' && i <= 'Ｚ':
-				out <- 'A' + i - 'Ａ'
-			default:
-				out <- i
-			}
-		}
-	}()
-	return out
-}
-
-func ZenkakuSpaceToHankakuSpace(in <-chan rune) <-chan rune {
-	out := make(chan rune)
+func HankakuEnglishToZenkakuEnglish(in <-chan KanaConverterRune) <-chan KanaConverterRune {
+	out := make(chan KanaConverterRune)
 	go func() {
 		defer close(out)
 		for r := range in {
-			if r == '　' {
-				out <- ' '
+			if r.IsConverted {
+				out <- r
+				continue
+			}
+			switch {
+			case r.Rune >= 'a' && r.Rune <= 'z':
+				out <- KanaConverterRune{Rune: 'ａ' + r.Rune - 'a', IsConverted: true}
+			case r.Rune >= 'A' && r.Rune <= 'Z':
+				out <- KanaConverterRune{Rune: 'Ａ' + r.Rune - 'A', IsConverted: true}
+			default:
+				out <- r
+			}
+		}
+	}()
+	return out
+}
+
+func ZenkakuEnglishToHankakuEnglish(in <-chan KanaConverterRune) <-chan KanaConverterRune {
+	out := make(chan KanaConverterRune)
+	go func() {
+		defer close(out)
+		for r := range in {
+			if r.IsConverted {
+				out <- r
+				continue
+			}
+			switch {
+			case r.Rune >= 'ａ' && r.Rune <= 'ｚ':
+				out <- KanaConverterRune{Rune: 'a' + r.Rune - 'ａ', IsConverted: true}
+			case r.Rune >= 'Ａ' && r.Rune <= 'Ｚ':
+				out <- KanaConverterRune{Rune: 'A' + r.Rune - 'Ａ', IsConverted: true}
+			default:
+				out <- r
+			}
+		}
+	}()
+	return out
+}
+
+func HankakuNumberToZenkakuNumber(in <-chan KanaConverterRune) <-chan KanaConverterRune {
+	out := make(chan KanaConverterRune)
+	go func() {
+		defer close(out)
+		for r := range in {
+			if r.IsConverted {
+				out <- r
+				continue
+			}
+			if r.Rune >= '0' && r.Rune <= '9' {
+				out <- KanaConverterRune{Rune: r.Rune + 0xFEE0, IsConverted: true}
 			} else {
 				out <- r
 			}
@@ -81,13 +68,17 @@ func ZenkakuSpaceToHankakuSpace(in <-chan rune) <-chan rune {
 	return out
 }
 
-func HankakuSpaceToZenkakuSpace(in <-chan rune) <-chan rune {
-	out := make(chan rune)
+func ZenkakuNumberToHankakuNumber(in <-chan KanaConverterRune) <-chan KanaConverterRune {
+	out := make(chan KanaConverterRune)
 	go func() {
 		defer close(out)
 		for r := range in {
-			if r == ' ' {
-				out <- '　'
+			if r.IsConverted {
+				out <- r
+				continue
+			}
+			if r.Rune >= '０' && r.Rune <= '９' {
+				out <- KanaConverterRune{Rune: r.Rune - 0xFEE0, IsConverted: true}
 			} else {
 				out <- r
 			}
@@ -96,222 +87,264 @@ func HankakuSpaceToZenkakuSpace(in <-chan rune) <-chan rune {
 	return out
 }
 
-func ZenkakuKatakanaToHankakuKatakana(in <-chan rune) <-chan rune {
-	out := make(chan rune)
+func ZenkakuSpaceToHankakuSpace(in <-chan KanaConverterRune) <-chan KanaConverterRune {
+	out := make(chan KanaConverterRune)
 	go func() {
 		defer close(out)
 		for r := range in {
-			switch r {
+			if r.IsConverted {
+				out <- r
+				continue
+			}
+			if r.Rune == '　' {
+				out <- KanaConverterRune{Rune: ' ', IsConverted: true}
+			} else {
+				out <- r
+			}
+		}
+	}()
+	return out
+}
+
+func HankakuSpaceToZenkakuSpace(in <-chan KanaConverterRune) <-chan KanaConverterRune {
+	out := make(chan KanaConverterRune)
+	go func() {
+		defer close(out)
+		for r := range in {
+			if r.IsConverted {
+				out <- r
+				continue
+			}
+			if r.Rune == ' ' {
+				out <- KanaConverterRune{Rune: '　', IsConverted: true}
+			} else {
+				out <- r
+			}
+		}
+	}()
+	return out
+}
+
+func ZenkakuKatakanaToHankakuKatakana(in <-chan KanaConverterRune) <-chan KanaConverterRune {
+	out := make(chan KanaConverterRune)
+	go func() {
+		defer close(out)
+		for r := range in {
+			if r.IsConverted {
+				out <- r
+				continue
+			}
+			switch r.Rune {
 			case '、':
-				out <- '､'
+				out <- KanaConverterRune{Rune: '､', IsConverted: true}
 			case '。':
-				out <- '｡'
+				out <- KanaConverterRune{Rune: '｡', IsConverted: true}
 			case '「':
-				out <- '｢'
+				out <- KanaConverterRune{Rune: '｢', IsConverted: true}
 			case '」':
-				out <- '｣'
+				out <- KanaConverterRune{Rune: '｣', IsConverted: true}
 			case '゛':
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case '゜':
-				out <- 'ﾟ'
+				out <- KanaConverterRune{Rune: 'ﾟ', IsConverted: true}
 			case 'ァ':
-				out <- 'ｧ'
+				out <- KanaConverterRune{Rune: 'ｧ', IsConverted: true}
 			case 'ア':
-				out <- 'ｱ'
+				out <- KanaConverterRune{Rune: 'ｱ', IsConverted: true}
 			case 'ィ':
-				out <- 'ｨ'
+				out <- KanaConverterRune{Rune: 'ｨ', IsConverted: true}
 			case 'イ':
-				out <- 'ｲ'
+				out <- KanaConverterRune{Rune: 'ｲ', IsConverted: true}
 			case 'ゥ':
-				out <- 'ｩ'
+				out <- KanaConverterRune{Rune: 'ｩ', IsConverted: true}
 			case 'ウ':
-				out <- 'ｳ'
+				out <- KanaConverterRune{Rune: 'ｳ', IsConverted: true}
 			case 'ェ':
-				out <- 'ｪ'
+				out <- KanaConverterRune{Rune: 'ｪ', IsConverted: true}
 			case 'エ':
-				out <- 'ｴ'
+				out <- KanaConverterRune{Rune: 'ｴ', IsConverted: true}
 			case 'ォ':
-				out <- 'ｫ'
+				out <- KanaConverterRune{Rune: 'ｫ', IsConverted: true}
 			case 'オ':
-				out <- 'ｵ'
+				out <- KanaConverterRune{Rune: 'ｵ', IsConverted: true}
 			case 'カ':
-				out <- 'ｶ'
+				out <- KanaConverterRune{Rune: 'ｶ', IsConverted: true}
 			case 'ガ':
-				out <- 'ｶ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ｶ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'キ':
-				out <- 'ｷ'
+				out <- KanaConverterRune{Rune: 'ｷ', IsConverted: true}
 			case 'ギ':
-				out <- 'ｷ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ｷ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'ク':
-				out <- 'ｸ'
+				out <- KanaConverterRune{Rune: 'ｸ', IsConverted: true}
 			case 'グ':
-				out <- 'ｸ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ｸ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'ケ':
-				out <- 'ｹ'
+				out <- KanaConverterRune{Rune: 'ｹ', IsConverted: true}
 			case 'ゲ':
-				out <- 'ｹ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ｹ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'コ':
-				out <- 'ｺ'
+				out <- KanaConverterRune{Rune: 'ｺ', IsConverted: true}
 			case 'ゴ':
-				out <- 'ｺ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ｺ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'サ':
-				out <- 'ｻ'
+				out <- KanaConverterRune{Rune: 'ｻ', IsConverted: true}
 			case 'ザ':
-				out <- 'ｻ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ｻ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'シ':
-				out <- 'ｼ'
+				out <- KanaConverterRune{Rune: 'ｼ', IsConverted: true}
 			case 'ジ':
-				out <- 'ｼ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ｼ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'ス':
-				out <- 'ｽ'
+				out <- KanaConverterRune{Rune: 'ｽ', IsConverted: true}
 			case 'ズ':
-				out <- 'ｽ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ｽ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'セ':
-				out <- 'ｾ'
+				out <- KanaConverterRune{Rune: 'ｾ', IsConverted: true}
 			case 'ゼ':
-				out <- 'ｾ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ｾ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'ソ':
-				out <- 'ｿ'
+				out <- KanaConverterRune{Rune: 'ｿ', IsConverted: true}
 			case 'ゾ':
-				out <- 'ｿ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ｿ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'タ':
-				out <- 'ﾀ'
+				out <- KanaConverterRune{Rune: 'ﾀ', IsConverted: true}
 			case 'ダ':
-				out <- 'ﾀ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ﾀ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'チ':
-				out <- 'ﾁ'
+				out <- KanaConverterRune{Rune: 'ﾁ', IsConverted: true}
 			case 'ヂ':
-				out <- 'ﾁ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ﾁ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'ッ':
-				out <- 'ｯ'
+				out <- KanaConverterRune{Rune: 'ｯ', IsConverted: true}
 			case 'ツ':
-				out <- 'ﾂ'
+				out <- KanaConverterRune{Rune: 'ﾂ', IsConverted: true}
 			case 'ヅ':
-				out <- 'ﾂ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ﾂ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'テ':
-				out <- 'ﾃ'
+				out <- KanaConverterRune{Rune: 'ﾃ', IsConverted: true}
 			case 'デ':
-				out <- 'ﾃ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ﾃ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'ト':
-				out <- 'ﾄ'
+				out <- KanaConverterRune{Rune: 'ﾄ', IsConverted: true}
 			case 'ド':
-				out <- 'ﾄ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ﾄ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'ナ':
-				out <- 'ﾅ'
+				out <- KanaConverterRune{Rune: 'ﾅ', IsConverted: true}
 			case 'ニ':
-				out <- 'ﾆ'
+				out <- KanaConverterRune{Rune: 'ﾆ', IsConverted: true}
 			case 'ヌ':
-				out <- 'ﾇ'
+				out <- KanaConverterRune{Rune: 'ﾇ', IsConverted: true}
 			case 'ネ':
-				out <- 'ﾈ'
+				out <- KanaConverterRune{Rune: 'ﾈ', IsConverted: true}
 			case 'ノ':
-				out <- 'ﾉ'
+				out <- KanaConverterRune{Rune: 'ﾉ', IsConverted: true}
 			case 'ハ':
-				out <- 'ﾊ'
+				out <- KanaConverterRune{Rune: 'ﾊ', IsConverted: true}
 			case 'バ':
-				out <- 'ﾊ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ﾊ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'パ':
-				out <- 'ﾊ'
-				out <- 'ﾟ'
+				out <- KanaConverterRune{Rune: 'ﾊ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾟ', IsConverted: true}
 			case 'ヒ':
-				out <- 'ﾋ'
+				out <- KanaConverterRune{Rune: 'ﾋ', IsConverted: true}
 			case 'ビ':
-				out <- 'ﾋ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ﾋ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'ピ':
-				out <- 'ﾋ'
-				out <- 'ﾟ'
+				out <- KanaConverterRune{Rune: 'ﾋ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾟ', IsConverted: true}
 			case 'フ':
-				out <- 'ﾌ'
+				out <- KanaConverterRune{Rune: 'ﾌ', IsConverted: true}
 			case 'ブ':
-				out <- 'ﾌ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ﾌ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'プ':
-				out <- 'ﾌ'
-				out <- 'ﾟ'
+				out <- KanaConverterRune{Rune: 'ﾌ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾟ', IsConverted: true}
 			case 'ヘ':
-				out <- 'ﾍ'
+				out <- KanaConverterRune{Rune: 'ﾍ', IsConverted: true}
 			case 'ベ':
-				out <- 'ﾍ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ﾍ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'ペ':
-				out <- 'ﾍ'
-				out <- 'ﾟ'
+				out <- KanaConverterRune{Rune: 'ﾍ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾟ', IsConverted: true}
 			case 'ホ':
-				out <- 'ﾎ'
+				out <- KanaConverterRune{Rune: 'ﾎ', IsConverted: true}
 			case 'ボ':
-				out <- 'ﾎ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ﾎ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'ポ':
-				out <- 'ﾎ'
-				out <- 'ﾟ'
+				out <- KanaConverterRune{Rune: 'ﾎ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾟ', IsConverted: true}
 			case 'マ':
-				out <- 'ﾏ'
+				out <- KanaConverterRune{Rune: 'ﾏ', IsConverted: true}
 			case 'ミ':
-				out <- 'ﾐ'
+				out <- KanaConverterRune{Rune: 'ﾐ', IsConverted: true}
 			case 'ム':
-				out <- 'ﾑ'
+				out <- KanaConverterRune{Rune: 'ﾑ', IsConverted: true}
 			case 'メ':
-				out <- 'ﾒ'
+				out <- KanaConverterRune{Rune: 'ﾒ', IsConverted: true}
 			case 'モ':
-				out <- 'ﾓ'
+				out <- KanaConverterRune{Rune: 'ﾓ', IsConverted: true}
 			case 'ャ':
-				out <- 'ｬ'
+				out <- KanaConverterRune{Rune: 'ｬ', IsConverted: true}
 			case 'ヤ':
-				out <- 'ﾔ'
+				out <- KanaConverterRune{Rune: 'ﾔ', IsConverted: true}
 			case 'ュ':
-				out <- 'ｭ'
+				out <- KanaConverterRune{Rune: 'ｭ', IsConverted: true}
 			case 'ユ':
-				out <- 'ﾕ'
+				out <- KanaConverterRune{Rune: 'ﾕ', IsConverted: true}
 			case 'ョ':
-				out <- 'ｮ'
+				out <- KanaConverterRune{Rune: 'ｮ', IsConverted: true}
 			case 'ヨ':
-				out <- 'ﾖ'
+				out <- KanaConverterRune{Rune: 'ﾖ', IsConverted: true}
 			case 'ラ':
-				out <- 'ﾗ'
+				out <- KanaConverterRune{Rune: 'ﾗ', IsConverted: true}
 			case 'リ':
-				out <- 'ﾘ'
+				out <- KanaConverterRune{Rune: 'ﾘ', IsConverted: true}
 			case 'ル':
-				out <- 'ﾙ'
+				out <- KanaConverterRune{Rune: 'ﾙ', IsConverted: true}
 			case 'レ':
-				out <- 'ﾚ'
+				out <- KanaConverterRune{Rune: 'ﾚ', IsConverted: true}
 			case 'ロ':
-				out <- 'ﾛ'
+				out <- KanaConverterRune{Rune: 'ﾛ', IsConverted: true}
 			case 'ヮ':
-				out <- 'ﾜ'
+				out <- KanaConverterRune{Rune: 'ﾜ', IsConverted: true}
 			case 'ワ':
-				out <- 'ﾜ'
+				out <- KanaConverterRune{Rune: 'ﾜ', IsConverted: true}
 			case 'ヰ':
-				out <- 'ｲ'
+				out <- KanaConverterRune{Rune: 'ｲ', IsConverted: true}
 			case 'ヱ':
-				out <- 'ｴ'
+				out <- KanaConverterRune{Rune: 'ｴ', IsConverted: true}
 			case 'ヲ':
-				out <- 'ｦ'
+				out <- KanaConverterRune{Rune: 'ｦ', IsConverted: true}
 			case 'ン':
-				out <- 'ﾝ'
+				out <- KanaConverterRune{Rune: 'ﾝ', IsConverted: true}
 			case 'ヴ':
-				out <- 'ｳ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ｳ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case '・':
-				out <- '･'
+				out <- KanaConverterRune{Rune: '･', IsConverted: true}
 			case 'ー':
-				out <- 'ｰ'
+				out <- KanaConverterRune{Rune: 'ｰ', IsConverted: true}
 			default:
 				out <- r
 			}
@@ -320,224 +353,228 @@ func ZenkakuKatakanaToHankakuKatakana(in <-chan rune) <-chan rune {
 	return out
 }
 
-func hankakuKatakanaToZenkakuKatakanaSimple(in rune) rune {
+func hankakuKatakanaToZenkakuKatakanaSimple(in rune) KanaConverterRune {
 	switch in {
 	case '｡':
-		return '。'
+		return KanaConverterRune{Rune: '。', IsConverted: true}
 	case '｢':
-		return '「'
+		return KanaConverterRune{Rune: '「', IsConverted: true}
 	case '｣':
-		return '」'
+		return KanaConverterRune{Rune: '」', IsConverted: true}
 	case '､':
-		return '、'
+		return KanaConverterRune{Rune: '、', IsConverted: true}
 	case '･':
-		return '・'
+		return KanaConverterRune{Rune: '・', IsConverted: true}
 	case 'ｦ':
-		return 'ヲ'
+		return KanaConverterRune{Rune: 'ヲ', IsConverted: true}
 	case 'ｧ':
-		return 'ァ'
+		return KanaConverterRune{Rune: 'ァ', IsConverted: true}
 	case 'ｨ':
-		return 'ィ'
+		return KanaConverterRune{Rune: 'ィ', IsConverted: true}
 	case 'ｩ':
-		return 'ゥ'
+		return KanaConverterRune{Rune: 'ゥ', IsConverted: true}
 	case 'ｪ':
-		return 'ェ'
+		return KanaConverterRune{Rune: 'ェ', IsConverted: true}
 	case 'ｫ':
-		return 'ォ'
+		return KanaConverterRune{Rune: 'ォ', IsConverted: true}
 	case 'ｬ':
-		return 'ャ'
+		return KanaConverterRune{Rune: 'ャ', IsConverted: true}
 	case 'ｭ':
-		return 'ュ'
+		return KanaConverterRune{Rune: 'ュ', IsConverted: true}
 	case 'ｮ':
-		return 'ョ'
+		return KanaConverterRune{Rune: 'ョ', IsConverted: true}
 	case 'ｯ':
-		return 'ッ'
+		return KanaConverterRune{Rune: 'ッ', IsConverted: true}
 	case 'ｰ':
-		return 'ー'
+		return KanaConverterRune{Rune: 'ー', IsConverted: true}
 	case 'ｱ':
-		return 'ア'
+		return KanaConverterRune{Rune: 'ア', IsConverted: true}
 	case 'ｲ':
-		return 'イ'
+		return KanaConverterRune{Rune: 'イ', IsConverted: true}
 	case 'ｳ':
-		return 'ウ'
+		return KanaConverterRune{Rune: 'ウ', IsConverted: true}
 	case 'ｴ':
-		return 'エ'
+		return KanaConverterRune{Rune: 'エ', IsConverted: true}
 	case 'ｵ':
-		return 'オ'
+		return KanaConverterRune{Rune: 'オ', IsConverted: true}
 	case 'ｶ':
-		return 'カ'
+		return KanaConverterRune{Rune: 'カ', IsConverted: true}
 	case 'ｷ':
-		return 'キ'
+		return KanaConverterRune{Rune: 'キ', IsConverted: true}
 	case 'ｸ':
-		return 'ク'
+		return KanaConverterRune{Rune: 'ク', IsConverted: true}
 	case 'ｹ':
-		return 'ケ'
+		return KanaConverterRune{Rune: 'ケ', IsConverted: true}
 	case 'ｺ':
-		return 'コ'
+		return KanaConverterRune{Rune: 'コ', IsConverted: true}
 	case 'ｻ':
-		return 'サ'
+		return KanaConverterRune{Rune: 'サ', IsConverted: true}
 	case 'ｼ':
-		return 'シ'
+		return KanaConverterRune{Rune: 'シ', IsConverted: true}
 	case 'ｽ':
-		return 'ス'
+		return KanaConverterRune{Rune: 'ス', IsConverted: true}
 	case 'ｾ':
-		return 'セ'
+		return KanaConverterRune{Rune: 'セ', IsConverted: true}
 	case 'ｿ':
-		return 'ソ'
+		return KanaConverterRune{Rune: 'ソ', IsConverted: true}
 	case 'ﾀ':
-		return 'タ'
+		return KanaConverterRune{Rune: 'タ', IsConverted: true}
 	case 'ﾁ':
-		return 'チ'
+		return KanaConverterRune{Rune: 'チ', IsConverted: true}
 	case 'ﾂ':
-		return 'ツ'
+		return KanaConverterRune{Rune: 'ツ', IsConverted: true}
 	case 'ﾃ':
-		return 'テ'
+		return KanaConverterRune{Rune: 'テ', IsConverted: true}
 	case 'ﾄ':
-		return 'ト'
+		return KanaConverterRune{Rune: 'ト', IsConverted: true}
 	case 'ﾅ':
-		return 'ナ'
+		return KanaConverterRune{Rune: 'ナ', IsConverted: true}
 	case 'ﾆ':
-		return 'ニ'
+		return KanaConverterRune{Rune: 'ニ', IsConverted: true}
 	case 'ﾇ':
-		return 'ヌ'
+		return KanaConverterRune{Rune: 'ヌ', IsConverted: true}
 	case 'ﾈ':
-		return 'ネ'
+		return KanaConverterRune{Rune: 'ネ', IsConverted: true}
 	case 'ﾉ':
-		return 'ノ'
+		return KanaConverterRune{Rune: 'ノ', IsConverted: true}
 	case 'ﾊ':
-		return 'ハ'
+		return KanaConverterRune{Rune: 'ハ', IsConverted: true}
 	case 'ﾋ':
-		return 'ヒ'
+		return KanaConverterRune{Rune: 'ヒ', IsConverted: true}
 	case 'ﾌ':
-		return 'フ'
+		return KanaConverterRune{Rune: 'フ', IsConverted: true}
 	case 'ﾍ':
-		return 'ヘ'
+		return KanaConverterRune{Rune: 'ヘ', IsConverted: true}
 	case 'ﾎ':
-		return 'ホ'
+		return KanaConverterRune{Rune: 'ホ', IsConverted: true}
 	case 'ﾏ':
-		return 'マ'
+		return KanaConverterRune{Rune: 'マ', IsConverted: true}
 	case 'ﾐ':
-		return 'ミ'
+		return KanaConverterRune{Rune: 'ミ', IsConverted: true}
 	case 'ﾑ':
-		return 'ム'
+		return KanaConverterRune{Rune: 'ム', IsConverted: true}
 	case 'ﾒ':
-		return 'メ'
+		return KanaConverterRune{Rune: 'メ', IsConverted: true}
 	case 'ﾓ':
-		return 'モ'
+		return KanaConverterRune{Rune: 'モ', IsConverted: true}
 	case 'ﾔ':
-		return 'ヤ'
+		return KanaConverterRune{Rune: 'ヤ', IsConverted: true}
 	case 'ﾕ':
-		return 'ユ'
+		return KanaConverterRune{Rune: 'ユ', IsConverted: true}
 	case 'ﾖ':
-		return 'ヨ'
+		return KanaConverterRune{Rune: 'ヨ', IsConverted: true}
 	case 'ﾗ':
-		return 'ラ'
+		return KanaConverterRune{Rune: 'ラ', IsConverted: true}
 	case 'ﾘ':
-		return 'リ'
+		return KanaConverterRune{Rune: 'リ', IsConverted: true}
 	case 'ﾙ':
-		return 'ル'
+		return KanaConverterRune{Rune: 'ル', IsConverted: true}
 	case 'ﾚ':
-		return 'レ'
+		return KanaConverterRune{Rune: 'レ', IsConverted: true}
 	case 'ﾛ':
-		return 'ロ'
+		return KanaConverterRune{Rune: 'ロ', IsConverted: true}
 	case 'ﾜ':
-		return 'ワ'
+		return KanaConverterRune{Rune: 'ワ', IsConverted: true}
 	case 'ﾝ':
-		return 'ン'
+		return KanaConverterRune{Rune: 'ン', IsConverted: true}
 	case 'ﾞ':
-		return '゛'
+		return KanaConverterRune{Rune: '゛', IsConverted: true}
 	case 'ﾟ':
-		return '゜'
+		return KanaConverterRune{Rune: '゜', IsConverted: true}
 	default:
-		return in
+		return KanaConverterRune{Rune: in}
 	}
 }
 
-func HankakuKatakanaToZenkakuKatakana(in <-chan rune, v bool) <-chan rune {
-	out := make(chan rune)
+func HankakuKatakanaToZenkakuKatakana(in <-chan KanaConverterRune, v bool) <-chan KanaConverterRune {
+	out := make(chan KanaConverterRune)
 	go func() {
 		defer close(out)
 		if v {
 			var before *rune
 			for r := range in {
-				switch r {
+				if r.IsConverted {
+					out <- r
+					continue
+				}
+				switch r.Rune {
 				case 'ｦ', 'ｳ', 'ｶ', 'ｷ', 'ｸ', 'ｹ', 'ｺ', 'ｻ', 'ｼ', 'ｽ', 'ｾ', 'ｿ', 'ﾀ', 'ﾁ', 'ﾂ', 'ﾃ', 'ﾄ', 'ﾊ', 'ﾋ', 'ﾌ', 'ﾍ', 'ﾎ', 'ﾜ':
 					if before != nil {
 						out <- hankakuKatakanaToZenkakuKatakanaSimple(*before)
 					}
 					r := r
-					before = &r
+					before = &r.Rune
 				case 'ﾞ':
 					if before == nil {
-						out <- '゛'
+						out <- KanaConverterRune{Rune: '゛', IsConverted: true}
 					} else {
 						switch *before {
 						case 'ｳ':
-							out <- 'ヴ'
+							out <- KanaConverterRune{Rune: 'ヴ', IsConverted: true}
 						case 'ｶ':
-							out <- 'ガ'
+							out <- KanaConverterRune{Rune: 'ガ', IsConverted: true}
 						case 'ｷ':
-							out <- 'ギ'
+							out <- KanaConverterRune{Rune: 'ギ', IsConverted: true}
 						case 'ｸ':
-							out <- 'グ'
+							out <- KanaConverterRune{Rune: 'グ', IsConverted: true}
 						case 'ｹ':
-							out <- 'ゲ'
+							out <- KanaConverterRune{Rune: 'ゲ', IsConverted: true}
 						case 'ｺ':
-							out <- 'ゴ'
+							out <- KanaConverterRune{Rune: 'ゴ', IsConverted: true}
 						case 'ｻ':
-							out <- 'ザ'
+							out <- KanaConverterRune{Rune: 'ザ', IsConverted: true}
 						case 'ｼ':
-							out <- 'ジ'
+							out <- KanaConverterRune{Rune: 'ジ', IsConverted: true}
 						case 'ｽ':
-							out <- 'ズ'
+							out <- KanaConverterRune{Rune: 'ズ', IsConverted: true}
 						case 'ｾ':
-							out <- 'ゼ'
+							out <- KanaConverterRune{Rune: 'ゼ', IsConverted: true}
 						case 'ｿ':
-							out <- 'ゾ'
+							out <- KanaConverterRune{Rune: 'ゾ', IsConverted: true}
 						case 'ﾀ':
-							out <- 'ダ'
+							out <- KanaConverterRune{Rune: 'ダ', IsConverted: true}
 						case 'ﾁ':
-							out <- 'ヂ'
+							out <- KanaConverterRune{Rune: 'ヂ', IsConverted: true}
 						case 'ﾂ':
-							out <- 'ヅ'
+							out <- KanaConverterRune{Rune: 'ヅ', IsConverted: true}
 						case 'ﾃ':
-							out <- 'デ'
+							out <- KanaConverterRune{Rune: 'デ', IsConverted: true}
 						case 'ﾄ':
-							out <- 'ド'
+							out <- KanaConverterRune{Rune: 'ド', IsConverted: true}
 						case 'ﾊ':
-							out <- 'バ'
+							out <- KanaConverterRune{Rune: 'バ', IsConverted: true}
 						case 'ﾋ':
-							out <- 'ビ'
+							out <- KanaConverterRune{Rune: 'ビ', IsConverted: true}
 						case 'ﾌ':
-							out <- 'ブ'
+							out <- KanaConverterRune{Rune: 'ブ', IsConverted: true}
 						case 'ﾍ':
-							out <- 'ベ'
+							out <- KanaConverterRune{Rune: 'ベ', IsConverted: true}
 						case 'ﾎ':
-							out <- 'ボ'
+							out <- KanaConverterRune{Rune: 'ボ', IsConverted: true}
 						default:
 							out <- hankakuKatakanaToZenkakuKatakanaSimple(*before)
-							out <- '゛'
+							out <- KanaConverterRune{Rune: '゛', IsConverted: true}
 						}
 						before = nil
 					}
 				case 'ﾟ':
 					if before == nil {
-						out <- '゜'
+						out <- KanaConverterRune{Rune: '゜', IsConverted: true}
 					} else {
 						switch *before {
 						case 'ﾊ':
-							out <- 'パ'
+							out <- KanaConverterRune{Rune: 'パ', IsConverted: true}
 						case 'ﾋ':
-							out <- 'ピ'
+							out <- KanaConverterRune{Rune: 'ピ', IsConverted: true}
 						case 'ﾌ':
-							out <- 'プ'
+							out <- KanaConverterRune{Rune: 'プ', IsConverted: true}
 						case 'ﾍ':
-							out <- 'ペ'
+							out <- KanaConverterRune{Rune: 'ペ', IsConverted: true}
 						case 'ﾎ':
-							out <- 'ポ'
+							out <- KanaConverterRune{Rune: 'ポ', IsConverted: true}
 						default:
 							out <- hankakuKatakanaToZenkakuKatakanaSimple(*before)
-							out <- '゜'
+							out <- KanaConverterRune{Rune: '゜', IsConverted: true}
 						}
 						before = nil
 					}
@@ -546,458 +583,470 @@ func HankakuKatakanaToZenkakuKatakana(in <-chan rune, v bool) <-chan rune {
 						out <- hankakuKatakanaToZenkakuKatakanaSimple(*before)
 						before = nil
 					}
-					out <- hankakuKatakanaToZenkakuKatakanaSimple(r)
+					out <- hankakuKatakanaToZenkakuKatakanaSimple(r.Rune)
 				}
 			}
 			if before != nil {
 				out <- hankakuKatakanaToZenkakuKatakanaSimple(*before)
 			}
 		} else {
-			for i := range in {
-				out <- hankakuKatakanaToZenkakuKatakanaSimple(i)
+			for r := range in {
+				if r.IsConverted {
+					out <- r
+					continue
+				}
+				out <- hankakuKatakanaToZenkakuKatakanaSimple(r.Rune)
 			}
 		}
 	}()
 	return out
 }
 
-func ZenkakuHiraganaToHankakuKatakana(in <-chan rune) <-chan rune {
-	out := make(chan rune)
+func ZenkakuHiraganaToHankakuKatakana(in <-chan KanaConverterRune) <-chan KanaConverterRune {
+	out := make(chan KanaConverterRune)
 	go func() {
 		defer close(out)
-		for i := range in {
-			switch i {
+		for r := range in {
+			if r.IsConverted {
+				out <- r
+				continue
+			}
+			switch r.Rune {
 			case '、':
-				out <- '､'
+				out <- KanaConverterRune{Rune: '､', IsConverted: true}
 			case '。':
-				out <- '｡'
+				out <- KanaConverterRune{Rune: '｡', IsConverted: true}
 			case '「':
-				out <- '｢'
+				out <- KanaConverterRune{Rune: '｢', IsConverted: true}
 			case '」':
-				out <- '｣'
+				out <- KanaConverterRune{Rune: '｣', IsConverted: true}
 			case '゛':
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case '゜':
-				out <- 'ﾟ'
+				out <- KanaConverterRune{Rune: 'ﾟ', IsConverted: true}
 			case 'ぁ':
-				out <- 'ｧ'
+				out <- KanaConverterRune{Rune: 'ｧ', IsConverted: true}
 			case 'あ':
-				out <- 'ｱ'
+				out <- KanaConverterRune{Rune: 'ｱ', IsConverted: true}
 			case 'ぃ':
-				out <- 'ｨ'
+				out <- KanaConverterRune{Rune: 'ｨ', IsConverted: true}
 			case 'い':
-				out <- 'ｲ'
+				out <- KanaConverterRune{Rune: 'ｲ', IsConverted: true}
 			case 'ぅ':
-				out <- 'ｩ'
+				out <- KanaConverterRune{Rune: 'ｩ', IsConverted: true}
 			case 'う':
-				out <- 'ｳ'
+				out <- KanaConverterRune{Rune: 'ｳ', IsConverted: true}
 			case 'ぇ':
-				out <- 'ｪ'
+				out <- KanaConverterRune{Rune: 'ｪ', IsConverted: true}
 			case 'え':
-				out <- 'ｴ'
+				out <- KanaConverterRune{Rune: 'ｴ', IsConverted: true}
 			case 'ぉ':
-				out <- 'ｫ'
+				out <- KanaConverterRune{Rune: 'ｫ', IsConverted: true}
 			case 'お':
-				out <- 'ｵ'
+				out <- KanaConverterRune{Rune: 'ｵ', IsConverted: true}
 			case 'か':
-				out <- 'ｶ'
+				out <- KanaConverterRune{Rune: 'ｶ', IsConverted: true}
 			case 'が':
-				out <- 'ｶ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ｶ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'き':
-				out <- 'ｷ'
+				out <- KanaConverterRune{Rune: 'ｷ', IsConverted: true}
 			case 'ぎ':
-				out <- 'ｷ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ｷ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'く':
-				out <- 'ｸ'
+				out <- KanaConverterRune{Rune: 'ｸ', IsConverted: true}
 			case 'ぐ':
-				out <- 'ｸ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ｸ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'け':
-				out <- 'ｹ'
+				out <- KanaConverterRune{Rune: 'ｹ', IsConverted: true}
 			case 'げ':
-				out <- 'ｹ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ｹ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'こ':
-				out <- 'ｺ'
+				out <- KanaConverterRune{Rune: 'ｺ', IsConverted: true}
 			case 'ご':
-				out <- 'ｺ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ｺ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'さ':
-				out <- 'ｻ'
+				out <- KanaConverterRune{Rune: 'ｻ', IsConverted: true}
 			case 'ざ':
-				out <- 'ｻ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ｻ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'し':
-				out <- 'ｼ'
+				out <- KanaConverterRune{Rune: 'ｼ', IsConverted: true}
 			case 'じ':
-				out <- 'ｼ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ｼ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'す':
-				out <- 'ｽ'
+				out <- KanaConverterRune{Rune: 'ｽ', IsConverted: true}
 			case 'ず':
-				out <- 'ｽ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ｽ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'せ':
-				out <- 'ｾ'
+				out <- KanaConverterRune{Rune: 'ｾ', IsConverted: true}
 			case 'ぜ':
-				out <- 'ｾ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ｾ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'そ':
-				out <- 'ｿ'
+				out <- KanaConverterRune{Rune: 'ｿ', IsConverted: true}
 			case 'ぞ':
-				out <- 'ｿ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ｿ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'た':
-				out <- 'ﾀ'
+				out <- KanaConverterRune{Rune: 'ﾀ', IsConverted: true}
 			case 'だ':
-				out <- 'ﾀ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ﾀ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'ち':
-				out <- 'ﾁ'
+				out <- KanaConverterRune{Rune: 'ﾁ', IsConverted: true}
 			case 'ぢ':
-				out <- 'ﾁ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ﾁ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'っ':
-				out <- 'ｯ'
+				out <- KanaConverterRune{Rune: 'ｯ', IsConverted: true}
 			case 'つ':
-				out <- 'ﾂ'
+				out <- KanaConverterRune{Rune: 'ﾂ', IsConverted: true}
 			case 'づ':
-				out <- 'ﾂ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ﾂ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'て':
-				out <- 'ﾃ'
+				out <- KanaConverterRune{Rune: 'ﾃ', IsConverted: true}
 			case 'で':
-				out <- 'ﾃ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ﾃ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'と':
-				out <- 'ﾄ'
+				out <- KanaConverterRune{Rune: 'ﾄ', IsConverted: true}
 			case 'ど':
-				out <- 'ﾄ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ﾄ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'な':
-				out <- 'ﾅ'
+				out <- KanaConverterRune{Rune: 'ﾅ', IsConverted: true}
 			case 'に':
-				out <- 'ﾆ'
+				out <- KanaConverterRune{Rune: 'ﾆ', IsConverted: true}
 			case 'ぬ':
-				out <- 'ﾇ'
+				out <- KanaConverterRune{Rune: 'ﾇ', IsConverted: true}
 			case 'ね':
-				out <- 'ﾈ'
+				out <- KanaConverterRune{Rune: 'ﾈ', IsConverted: true}
 			case 'の':
-				out <- 'ﾉ'
+				out <- KanaConverterRune{Rune: 'ﾉ', IsConverted: true}
 			case 'は':
-				out <- 'ﾊ'
+				out <- KanaConverterRune{Rune: 'ﾊ', IsConverted: true}
 			case 'ば':
-				out <- 'ﾊ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ﾊ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'ぱ':
-				out <- 'ﾊ'
-				out <- 'ﾟ'
+				out <- KanaConverterRune{Rune: 'ﾊ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾟ', IsConverted: true}
 			case 'ひ':
-				out <- 'ﾋ'
+				out <- KanaConverterRune{Rune: 'ﾋ', IsConverted: true}
 			case 'び':
-				out <- 'ﾋ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ﾋ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'ぴ':
-				out <- 'ﾋ'
-				out <- 'ﾟ'
+				out <- KanaConverterRune{Rune: 'ﾋ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾟ', IsConverted: true}
 			case 'ふ':
-				out <- 'ﾌ'
+				out <- KanaConverterRune{Rune: 'ﾌ', IsConverted: true}
 			case 'ぶ':
-				out <- 'ﾌ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ﾌ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'ぷ':
-				out <- 'ﾌ'
-				out <- 'ﾟ'
+				out <- KanaConverterRune{Rune: 'ﾌ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾟ', IsConverted: true}
 			case 'へ':
-				out <- 'ﾍ'
+				out <- KanaConverterRune{Rune: 'ﾍ', IsConverted: true}
 			case 'べ':
-				out <- 'ﾍ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ﾍ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'ぺ':
-				out <- 'ﾍ'
-				out <- 'ﾟ'
+				out <- KanaConverterRune{Rune: 'ﾍ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾟ', IsConverted: true}
 			case 'ほ':
-				out <- 'ﾎ'
+				out <- KanaConverterRune{Rune: 'ﾎ', IsConverted: true}
 			case 'ぼ':
-				out <- 'ﾎ'
-				out <- 'ﾞ'
+				out <- KanaConverterRune{Rune: 'ﾎ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾞ', IsConverted: true}
 			case 'ぽ':
-				out <- 'ﾎ'
-				out <- 'ﾟ'
+				out <- KanaConverterRune{Rune: 'ﾎ', IsConverted: true}
+				out <- KanaConverterRune{Rune: 'ﾟ', IsConverted: true}
 			case 'ま':
-				out <- 'ﾏ'
+				out <- KanaConverterRune{Rune: 'ﾏ', IsConverted: true}
 			case 'み':
-				out <- 'ﾐ'
+				out <- KanaConverterRune{Rune: 'ﾐ', IsConverted: true}
 			case 'む':
-				out <- 'ﾑ'
+				out <- KanaConverterRune{Rune: 'ﾑ', IsConverted: true}
 			case 'め':
-				out <- 'ﾒ'
+				out <- KanaConverterRune{Rune: 'ﾒ', IsConverted: true}
 			case 'も':
-				out <- 'ﾓ'
+				out <- KanaConverterRune{Rune: 'ﾓ', IsConverted: true}
 			case 'ゃ':
-				out <- 'ｬ'
+				out <- KanaConverterRune{Rune: 'ｬ', IsConverted: true}
 			case 'や':
-				out <- 'ﾔ'
+				out <- KanaConverterRune{Rune: 'ﾔ', IsConverted: true}
 			case 'ゅ':
-				out <- 'ｭ'
+				out <- KanaConverterRune{Rune: 'ｭ', IsConverted: true}
 			case 'ゆ':
-				out <- 'ﾕ'
+				out <- KanaConverterRune{Rune: 'ﾕ', IsConverted: true}
 			case 'ょ':
-				out <- 'ｮ'
+				out <- KanaConverterRune{Rune: 'ｮ', IsConverted: true}
 			case 'よ':
-				out <- 'ﾖ'
+				out <- KanaConverterRune{Rune: 'ﾖ', IsConverted: true}
 			case 'ら':
-				out <- 'ﾗ'
+				out <- KanaConverterRune{Rune: 'ﾗ', IsConverted: true}
 			case 'り':
-				out <- 'ﾘ'
+				out <- KanaConverterRune{Rune: 'ﾘ', IsConverted: true}
 			case 'る':
-				out <- 'ﾙ'
+				out <- KanaConverterRune{Rune: 'ﾙ', IsConverted: true}
 			case 'れ':
-				out <- 'ﾚ'
+				out <- KanaConverterRune{Rune: 'ﾚ', IsConverted: true}
 			case 'ろ':
-				out <- 'ﾛ'
+				out <- KanaConverterRune{Rune: 'ﾛ', IsConverted: true}
 			case 'ゎ':
-				out <- 'ﾜ'
+				out <- KanaConverterRune{Rune: 'ﾜ', IsConverted: true}
 			case 'わ':
-				out <- 'ﾜ'
+				out <- KanaConverterRune{Rune: 'ﾜ', IsConverted: true}
 			case 'ゐ':
-				out <- 'ｲ'
+				out <- KanaConverterRune{Rune: 'ｲ', IsConverted: true}
 			case 'ゑ':
-				out <- 'ｴ'
+				out <- KanaConverterRune{Rune: 'ｴ', IsConverted: true}
 			case 'を':
-				out <- 'ｦ'
+				out <- KanaConverterRune{Rune: 'ｦ', IsConverted: true}
 			case 'ん':
-				out <- 'ﾝ'
+				out <- KanaConverterRune{Rune: 'ﾝ', IsConverted: true}
 			case '・':
-				out <- '･'
+				out <- KanaConverterRune{Rune: '･', IsConverted: true}
 			case 'ー':
-				out <- 'ｰ'
+				out <- KanaConverterRune{Rune: 'ｰ', IsConverted: true}
 			default:
-				out <- i
+				out <- r
 			}
 		}
 	}()
 	return out
 }
 
-func hankakuKatakanaToZenkakuHiraganaSimple(in rune) rune {
+func hankakuKatakanaToZenkakuHiraganaSimple(in rune) KanaConverterRune {
 	switch in {
 	case '｡':
-		return '。'
+		return KanaConverterRune{Rune: '。', IsConverted: true}
 	case '｢':
-		return '「'
+		return KanaConverterRune{Rune: '「', IsConverted: true}
 	case '｣':
-		return '」'
+		return KanaConverterRune{Rune: '」', IsConverted: true}
 	case '､':
-		return '、'
+		return KanaConverterRune{Rune: '、', IsConverted: true}
 	case '･':
-		return '・'
+		return KanaConverterRune{Rune: '・', IsConverted: true}
 	case 'ｦ':
-		return 'を'
+		return KanaConverterRune{Rune: 'を', IsConverted: true}
 	case 'ｧ':
-		return 'ぁ'
+		return KanaConverterRune{Rune: 'ぁ', IsConverted: true}
 	case 'ｨ':
-		return 'ぃ'
+		return KanaConverterRune{Rune: 'ぃ', IsConverted: true}
 	case 'ｩ':
-		return 'ぅ'
+		return KanaConverterRune{Rune: 'ぅ', IsConverted: true}
 	case 'ｪ':
-		return 'ぇ'
+		return KanaConverterRune{Rune: 'ぇ', IsConverted: true}
 	case 'ｫ':
-		return 'ぉ'
+		return KanaConverterRune{Rune: 'ぉ', IsConverted: true}
 	case 'ｬ':
-		return 'ゃ'
+		return KanaConverterRune{Rune: 'ゃ', IsConverted: true}
 	case 'ｭ':
-		return 'ゅ'
+		return KanaConverterRune{Rune: 'ゅ', IsConverted: true}
 	case 'ｮ':
-		return 'ょ'
+		return KanaConverterRune{Rune: 'ょ', IsConverted: true}
 	case 'ｯ':
-		return 'っ'
+		return KanaConverterRune{Rune: 'っ', IsConverted: true}
 	case 'ｰ':
-		return 'ー'
+		return KanaConverterRune{Rune: 'ー', IsConverted: true}
 	case 'ｱ':
-		return 'あ'
+		return KanaConverterRune{Rune: 'あ', IsConverted: true}
 	case 'ｲ':
-		return 'い'
+		return KanaConverterRune{Rune: 'い', IsConverted: true}
 	case 'ｳ':
-		return 'う'
+		return KanaConverterRune{Rune: 'う', IsConverted: true}
 	case 'ｴ':
-		return 'え'
+		return KanaConverterRune{Rune: 'え', IsConverted: true}
 	case 'ｵ':
-		return 'お'
+		return KanaConverterRune{Rune: 'お', IsConverted: true}
 	case 'ｶ':
-		return 'か'
+		return KanaConverterRune{Rune: 'か', IsConverted: true}
 	case 'ｷ':
-		return 'き'
+		return KanaConverterRune{Rune: 'き', IsConverted: true}
 	case 'ｸ':
-		return 'く'
+		return KanaConverterRune{Rune: 'く', IsConverted: true}
 	case 'ｹ':
-		return 'け'
+		return KanaConverterRune{Rune: 'け', IsConverted: true}
 	case 'ｺ':
-		return 'こ'
+		return KanaConverterRune{Rune: 'こ', IsConverted: true}
 	case 'ｻ':
-		return 'さ'
+		return KanaConverterRune{Rune: 'さ', IsConverted: true}
 	case 'ｼ':
-		return 'し'
+		return KanaConverterRune{Rune: 'し', IsConverted: true}
 	case 'ｽ':
-		return 'す'
+		return KanaConverterRune{Rune: 'す', IsConverted: true}
 	case 'ｾ':
-		return 'せ'
+		return KanaConverterRune{Rune: 'せ', IsConverted: true}
 	case 'ｿ':
-		return 'そ'
+		return KanaConverterRune{Rune: 'そ', IsConverted: true}
 	case 'ﾀ':
-		return 'た'
+		return KanaConverterRune{Rune: 'た', IsConverted: true}
 	case 'ﾁ':
-		return 'ち'
+		return KanaConverterRune{Rune: 'ち', IsConverted: true}
 	case 'ﾂ':
-		return 'つ'
+		return KanaConverterRune{Rune: 'つ', IsConverted: true}
 	case 'ﾃ':
-		return 'て'
+		return KanaConverterRune{Rune: 'て', IsConverted: true}
 	case 'ﾄ':
-		return 'と'
+		return KanaConverterRune{Rune: 'と', IsConverted: true}
 	case 'ﾅ':
-		return 'な'
+		return KanaConverterRune{Rune: 'な', IsConverted: true}
 	case 'ﾆ':
-		return 'に'
+		return KanaConverterRune{Rune: 'に', IsConverted: true}
 	case 'ﾇ':
-		return 'ぬ'
+		return KanaConverterRune{Rune: 'ぬ', IsConverted: true}
 	case 'ﾈ':
-		return 'ね'
+		return KanaConverterRune{Rune: 'ね', IsConverted: true}
 	case 'ﾉ':
-		return 'の'
+		return KanaConverterRune{Rune: 'の', IsConverted: true}
 	case 'ﾊ':
-		return 'は'
+		return KanaConverterRune{Rune: 'は', IsConverted: true}
 	case 'ﾋ':
-		return 'ひ'
+		return KanaConverterRune{Rune: 'ひ', IsConverted: true}
 	case 'ﾌ':
-		return 'ふ'
+		return KanaConverterRune{Rune: 'ふ', IsConverted: true}
 	case 'ﾍ':
-		return 'へ'
+		return KanaConverterRune{Rune: 'へ', IsConverted: true}
 	case 'ﾎ':
-		return 'ほ'
+		return KanaConverterRune{Rune: 'ほ', IsConverted: true}
 	case 'ﾏ':
-		return 'ま'
+		return KanaConverterRune{Rune: 'ま', IsConverted: true}
 	case 'ﾐ':
-		return 'み'
+		return KanaConverterRune{Rune: 'み', IsConverted: true}
 	case 'ﾑ':
-		return 'む'
+		return KanaConverterRune{Rune: 'む', IsConverted: true}
 	case 'ﾒ':
-		return 'め'
+		return KanaConverterRune{Rune: 'め', IsConverted: true}
 	case 'ﾓ':
-		return 'も'
+		return KanaConverterRune{Rune: 'も', IsConverted: true}
 	case 'ﾔ':
-		return 'や'
+		return KanaConverterRune{Rune: 'や', IsConverted: true}
 	case 'ﾕ':
-		return 'ゆ'
+		return KanaConverterRune{Rune: 'ゆ', IsConverted: true}
 	case 'ﾖ':
-		return 'よ'
+		return KanaConverterRune{Rune: 'よ', IsConverted: true}
 	case 'ﾗ':
-		return 'ら'
+		return KanaConverterRune{Rune: 'ら', IsConverted: true}
 	case 'ﾘ':
-		return 'り'
+		return KanaConverterRune{Rune: 'り', IsConverted: true}
 	case 'ﾙ':
-		return 'る'
+		return KanaConverterRune{Rune: 'る', IsConverted: true}
 	case 'ﾚ':
-		return 'れ'
+		return KanaConverterRune{Rune: 'れ', IsConverted: true}
 	case 'ﾛ':
-		return 'ろ'
+		return KanaConverterRune{Rune: 'ろ', IsConverted: true}
 	case 'ﾜ':
-		return 'わ'
+		return KanaConverterRune{Rune: 'わ', IsConverted: true}
 	case 'ﾝ':
-		return 'ん'
+		return KanaConverterRune{Rune: 'ん', IsConverted: true}
 	case 'ﾞ':
-		return '゛'
+		return KanaConverterRune{Rune: '゛', IsConverted: true}
 	case 'ﾟ':
-		return '゜'
+		return KanaConverterRune{Rune: '゜', IsConverted: true}
 	default:
-		return in
+		return KanaConverterRune{Rune: in}
 	}
 }
 
-func HankakuKatakanaToZenkakuHiragana(in <-chan rune, v bool) <-chan rune {
-	out := make(chan rune)
+func HankakuKatakanaToZenkakuHiragana(in <-chan KanaConverterRune, v bool) <-chan KanaConverterRune {
+	out := make(chan KanaConverterRune)
 	go func() {
 		defer close(out)
 		if v {
 			var before *rune
 			for r := range in {
-				switch r {
+				if r.IsConverted {
+					out <- r
+					continue
+				}
+				switch r.Rune {
 				case 'ｳ', 'ｶ', 'ｷ', 'ｸ', 'ｹ', 'ｺ', 'ｻ', 'ｼ', 'ｽ', 'ｾ', 'ｿ', 'ﾀ', 'ﾁ', 'ﾂ', 'ﾃ', 'ﾄ', 'ﾊ', 'ﾋ', 'ﾌ', 'ﾍ', 'ﾎ', 'ﾜ':
 					if before != nil {
 						out <- hankakuKatakanaToZenkakuHiraganaSimple(*before)
 					}
 					r := r
-					before = &r
+					before = &r.Rune
 				case 'ﾞ':
 					if before == nil {
-						out <- '゛'
+						out <- KanaConverterRune{Rune: '゛', IsConverted: true}
 					} else {
 						switch *before {
 						case 'ｶ':
-							out <- 'が'
+							out <- KanaConverterRune{Rune: 'が', IsConverted: true}
 						case 'ｷ':
-							out <- 'ぎ'
+							out <- KanaConverterRune{Rune: 'ぎ', IsConverted: true}
 						case 'ｸ':
-							out <- 'ぐ'
+							out <- KanaConverterRune{Rune: 'ぐ', IsConverted: true}
 						case 'ｹ':
-							out <- 'げ'
+							out <- KanaConverterRune{Rune: 'げ', IsConverted: true}
 						case 'ｺ':
-							out <- 'ご'
+							out <- KanaConverterRune{Rune: 'ご', IsConverted: true}
 						case 'ｻ':
-							out <- 'ざ'
+							out <- KanaConverterRune{Rune: 'ざ', IsConverted: true}
 						case 'ｼ':
-							out <- 'じ'
+							out <- KanaConverterRune{Rune: 'じ', IsConverted: true}
 						case 'ｽ':
-							out <- 'ず'
+							out <- KanaConverterRune{Rune: 'ず', IsConverted: true}
 						case 'ｾ':
-							out <- 'ぜ'
+							out <- KanaConverterRune{Rune: 'ぜ', IsConverted: true}
 						case 'ｿ':
-							out <- 'ぞ'
+							out <- KanaConverterRune{Rune: 'ぞ', IsConverted: true}
 						case 'ﾀ':
-							out <- 'だ'
+							out <- KanaConverterRune{Rune: 'だ', IsConverted: true}
 						case 'ﾁ':
-							out <- 'ぢ'
+							out <- KanaConverterRune{Rune: 'ぢ', IsConverted: true}
 						case 'ﾂ':
-							out <- 'づ'
+							out <- KanaConverterRune{Rune: 'づ', IsConverted: true}
 						case 'ﾃ':
-							out <- 'で'
+							out <- KanaConverterRune{Rune: 'で', IsConverted: true}
 						case 'ﾄ':
-							out <- 'ど'
+							out <- KanaConverterRune{Rune: 'ど', IsConverted: true}
 						case 'ﾊ':
-							out <- 'ば'
+							out <- KanaConverterRune{Rune: 'ば', IsConverted: true}
 						case 'ﾋ':
-							out <- 'び'
+							out <- KanaConverterRune{Rune: 'び', IsConverted: true}
 						case 'ﾌ':
-							out <- 'ぶ'
+							out <- KanaConverterRune{Rune: 'ぶ', IsConverted: true}
 						case 'ﾍ':
-							out <- 'べ'
+							out <- KanaConverterRune{Rune: 'べ', IsConverted: true}
 						case 'ﾎ':
-							out <- 'ぼ'
+							out <- KanaConverterRune{Rune: 'ぼ', IsConverted: true}
 						default:
 							out <- hankakuKatakanaToZenkakuHiraganaSimple(*before)
-							out <- '゛'
+							out <- KanaConverterRune{Rune: '゛', IsConverted: true}
 						}
 						before = nil
 					}
 				case 'ﾟ':
 					if before == nil {
-						out <- '゜'
+						out <- KanaConverterRune{Rune: '゜', IsConverted: true}
 					} else {
 						switch *before {
 						case 'ﾊ':
-							out <- 'ぱ'
+							out <- KanaConverterRune{Rune: 'ぱ', IsConverted: true}
 						case 'ﾋ':
-							out <- 'ぴ'
+							out <- KanaConverterRune{Rune: 'ぴ', IsConverted: true}
 						case 'ﾌ':
-							out <- 'ぷ'
+							out <- KanaConverterRune{Rune: 'ぷ', IsConverted: true}
 						case 'ﾍ':
-							out <- 'ぺ'
+							out <- KanaConverterRune{Rune: 'ぺ', IsConverted: true}
 						case 'ﾎ':
-							out <- 'ぽ'
+							out <- KanaConverterRune{Rune: 'ぽ', IsConverted: true}
 						default:
 							out <- hankakuKatakanaToZenkakuHiraganaSimple(*before)
-							out <- '゜'
+							out <- KanaConverterRune{Rune: '゜', IsConverted: true}
 						}
 						before = nil
 					}
@@ -1006,59 +1055,71 @@ func HankakuKatakanaToZenkakuHiragana(in <-chan rune, v bool) <-chan rune {
 						out <- hankakuKatakanaToZenkakuHiraganaSimple(*before)
 						before = nil
 					}
-					out <- hankakuKatakanaToZenkakuHiraganaSimple(r)
+					out <- hankakuKatakanaToZenkakuHiraganaSimple(r.Rune)
 				}
 			}
 			if before != nil {
 				out <- hankakuKatakanaToZenkakuHiraganaSimple(*before)
 			}
 		} else {
-			for i := range in {
-				out <- hankakuKatakanaToZenkakuHiraganaSimple(i)
+			for r := range in {
+				if r.IsConverted {
+					out <- r
+					continue
+				}
+				out <- hankakuKatakanaToZenkakuHiraganaSimple(r.Rune)
 			}
 		}
 	}()
 	return out
 }
 
-func ZenkakuKatakanaToZenkakuHiragana(in <-chan rune) <-chan rune {
-	out := make(chan rune)
+func ZenkakuKatakanaToZenkakuHiragana(in <-chan KanaConverterRune) <-chan KanaConverterRune {
+	out := make(chan KanaConverterRune)
 	go func() {
 		defer close(out)
-		for i := range in {
+		for r := range in {
+			if r.IsConverted {
+				out <- r
+				continue
+			}
 			switch {
-			case i >= 'ァ' && i <= 'ン', i == 'ヽ', i == 'ヾ':
-				out <- 'ぁ' + i - 'ァ'
+			case r.Rune >= 'ァ' && r.Rune <= 'ン', r.Rune == 'ヽ', r.Rune == 'ヾ':
+				out <- KanaConverterRune{Rune: 'ぁ' + r.Rune - 'ァ', IsConverted: true}
 			default:
-				out <- i
+				out <- r
 			}
 		}
 	}()
 	return out
 }
 
-func ZenkakuHiraganaToZenkakuKatakana(in <-chan rune) <-chan rune {
-	out := make(chan rune)
+func ZenkakuHiraganaToZenkakuKatakana(in <-chan KanaConverterRune) <-chan KanaConverterRune {
+	out := make(chan KanaConverterRune)
 	go func() {
 		defer close(out)
-		for i := range in {
+		for r := range in {
+			if r.IsConverted {
+				out <- r
+				continue
+			}
 			switch {
-			case i >= 'ぁ' && i <= 'ん', i == 'ゝ', i == 'ゞ':
-				out <- 'ァ' + i - 'ぁ'
+			case r.Rune >= 'ぁ' && r.Rune <= 'ん', r.Rune == 'ゝ', r.Rune == 'ゞ':
+				out <- KanaConverterRune{Rune: 'ァ' + r.Rune - 'ぁ', IsConverted: true}
 			default:
-				out <- i
+				out <- r
 			}
 		}
 	}()
 	return out
 }
 
-func NewKanaConverters(mode string) ([]func(<-chan rune) <-chan rune, error) {
+func NewKanaConverters(mode string) ([]func(<-chan KanaConverterRune) <-chan KanaConverterRune, error) {
 	options, err := NewKanaConverterOptions(mode)
 	if err != nil {
 		return nil, err
 	}
-	var converters []func(<-chan rune) <-chan rune
+	var converters []func(<-chan KanaConverterRune) <-chan KanaConverterRune
 	if options.optr {
 		converters = append(converters, ZenkakuEnglishToHankakuEnglish)
 	}
@@ -1100,7 +1161,9 @@ func NewKanaConverters(mode string) ([]func(<-chan rune) <-chan rune, error) {
 			converters = append(converters, ZenkakuHiraganaToHankakuKatakana)
 		}
 		if options.optH {
-			converters = append(converters, func(in <-chan rune) <-chan rune { return HankakuKatakanaToZenkakuHiragana(in, options.optV) })
+			converters = append(converters, func(in <-chan KanaConverterRune) <-chan KanaConverterRune {
+				return HankakuKatakanaToZenkakuHiragana(in, options.optV)
+			})
 		}
 		converters = append(converters, ZenkakuKatakanaToHankakuKatakana)
 		return converters, nil
@@ -1109,7 +1172,9 @@ func NewKanaConverters(mode string) ([]func(<-chan rune) <-chan rune, error) {
 		if options.optc {
 			converters = append(converters, ZenkakuKatakanaToZenkakuHiragana)
 		}
-		converters = append(converters, func(in <-chan rune) <-chan rune { return HankakuKatakanaToZenkakuKatakana(in, options.optV) })
+		converters = append(converters, func(in <-chan KanaConverterRune) <-chan KanaConverterRune {
+			return HankakuKatakanaToZenkakuKatakana(in, options.optV)
+		})
 		if options.opth {
 			converters = append(converters, ZenkakuHiraganaToHankakuKatakana)
 		}
@@ -1126,7 +1191,9 @@ func NewKanaConverters(mode string) ([]func(<-chan rune) <-chan rune, error) {
 		if options.optC {
 			converters = append(converters, ZenkakuHiraganaToZenkakuKatakana)
 		}
-		converters = append(converters, func(in <-chan rune) <-chan rune { return HankakuKatakanaToZenkakuHiragana(in, options.optV) })
+		converters = append(converters, func(in <-chan KanaConverterRune) <-chan KanaConverterRune {
+			return HankakuKatakanaToZenkakuHiragana(in, options.optV)
+		})
 		if options.optc {
 			converters = append(converters, ZenkakuKatakanaToZenkakuHiragana)
 		}

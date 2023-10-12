@@ -2,21 +2,21 @@ package converter
 
 import "strings"
 
-func Generate(in string) <-chan rune {
-	out := make(chan rune)
+func GenerateForKanaConverter(in string) <-chan KanaConverterRune {
+	out := make(chan KanaConverterRune)
 	go func() {
 		defer close(out)
-		for _, i := range in {
-			out <- i
+		for _, r := range in {
+			out <- KanaConverterRune{Rune: r}
 		}
 	}()
 	return out
 }
 
-func String(in <-chan rune) string {
+func StringForKanaConverter(in <-chan KanaConverterRune) string {
 	var b strings.Builder
 	for r := range in {
-		b.WriteRune(r)
+		b.WriteRune(r.Rune)
 	}
 	return b.String()
 }

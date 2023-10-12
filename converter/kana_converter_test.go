@@ -37,7 +37,7 @@ func TestHankakuNumberToZenkakuNumber(t *testing.T) {
 
 			t.Parallel()
 
-			if got := converter.String(converter.HankakuNumberToZenkakuNumber(converter.Generate(tt.args.in))); got != tt.want {
+			if got := converter.StringForKanaConverter(converter.HankakuNumberToZenkakuNumber(converter.GenerateForKanaConverter(tt.args.in))); got != tt.want {
 				t.Errorf("%v is converted %v, want %v", tt.args.in, got, tt.want)
 			}
 		})
@@ -75,7 +75,7 @@ func TestZenkakuNumberToHankakuNumber(t *testing.T) {
 
 			t.Parallel()
 
-			if got := converter.String(converter.ZenkakuNumberToHankakuNumber(converter.Generate(tt.args.in))); got != tt.want {
+			if got := converter.StringForKanaConverter(converter.ZenkakuNumberToHankakuNumber(converter.GenerateForKanaConverter(tt.args.in))); got != tt.want {
 				t.Errorf("%v is converted %v, want %v", tt.args.in, got, tt.want)
 			}
 		})
@@ -118,7 +118,7 @@ func TestHankakuEnglishToZenkakuEnglish(t *testing.T) {
 
 			t.Parallel()
 
-			if got := converter.String(converter.HankakuEnglishToZenkakuEnglish(converter.Generate(tt.args.in))); got != tt.want {
+			if got := converter.StringForKanaConverter(converter.HankakuEnglishToZenkakuEnglish(converter.GenerateForKanaConverter(tt.args.in))); got != tt.want {
 				t.Errorf("%v is converted %v, want %v", tt.args.in, got, tt.want)
 			}
 		})
@@ -161,7 +161,7 @@ func TestZenkakuEnglishToHankakuEnglish(t *testing.T) {
 
 			t.Parallel()
 
-			if got := converter.String(converter.ZenkakuEnglishToHankakuEnglish(converter.Generate(tt.args.in))); got != tt.want {
+			if got := converter.StringForKanaConverter(converter.ZenkakuEnglishToHankakuEnglish(converter.GenerateForKanaConverter(tt.args.in))); got != tt.want {
 				t.Errorf("%v is converted %v, want %v", tt.args.in, got, tt.want)
 			}
 		})
@@ -199,7 +199,7 @@ func TestHankakuSpaceToZenkakuSpace(t *testing.T) {
 
 			t.Parallel()
 
-			if got := converter.String(converter.HankakuSpaceToZenkakuSpace(converter.Generate(tt.args.in))); got != tt.want {
+			if got := converter.StringForKanaConverter(converter.HankakuSpaceToZenkakuSpace(converter.GenerateForKanaConverter(tt.args.in))); got != tt.want {
 				t.Errorf("%v is converted %v, want %v", tt.args.in, got, tt.want)
 			}
 		})
@@ -237,7 +237,7 @@ func TestZenkakuSpaceToHankakuSpace(t *testing.T) {
 
 			t.Parallel()
 
-			if got := converter.String(converter.ZenkakuSpaceToHankakuSpace(converter.Generate(tt.args.in))); got != tt.want {
+			if got := converter.StringForKanaConverter(converter.ZenkakuSpaceToHankakuSpace(converter.GenerateForKanaConverter(tt.args.in))); got != tt.want {
 				t.Errorf("%v is converted %v, want %v", tt.args.in, got, tt.want)
 			}
 		})
@@ -300,7 +300,7 @@ func TestZenkakuKatakanaToHankakuKatakana(t *testing.T) {
 
 			t.Parallel()
 
-			if got := converter.String(converter.ZenkakuKatakanaToHankakuKatakana(converter.Generate(tt.args.in))); got != tt.want {
+			if got := converter.StringForKanaConverter(converter.ZenkakuKatakanaToHankakuKatakana(converter.GenerateForKanaConverter(tt.args.in))); got != tt.want {
 				t.Errorf("%v is converted %v, want %v", tt.args.in, got, tt.want)
 			}
 		})
@@ -404,7 +404,7 @@ func TestHankakuKatakanaToZenkakuKatakana(t *testing.T) {
 
 			t.Parallel()
 
-			if got := converter.String(converter.HankakuKatakanaToZenkakuKatakana(converter.Generate(tt.args.in), tt.args.v)); got != tt.want {
+			if got := converter.StringForKanaConverter(converter.HankakuKatakanaToZenkakuKatakana(converter.GenerateForKanaConverter(tt.args.in), tt.args.v)); got != tt.want {
 				t.Errorf("%v is converted %v, want %v", tt.args.in, got, tt.want)
 			}
 		})
@@ -467,7 +467,7 @@ func TestZenkakuHiraganaToHankakuKatakana(t *testing.T) {
 
 			t.Parallel()
 
-			if got := converter.String(converter.ZenkakuHiraganaToHankakuKatakana(converter.Generate(tt.args.in))); got != tt.want {
+			if got := converter.StringForKanaConverter(converter.ZenkakuHiraganaToHankakuKatakana(converter.GenerateForKanaConverter(tt.args.in))); got != tt.want {
 				t.Errorf("%v is converted %v, want %v", tt.args.in, got, tt.want)
 			}
 		})
@@ -571,7 +571,7 @@ func TestHankakuKatakanaToZenkakuHiragana(t *testing.T) {
 
 			t.Parallel()
 
-			if got := converter.String(converter.HankakuKatakanaToZenkakuHiragana(converter.Generate(tt.args.in), tt.args.v)); got != tt.want {
+			if got := converter.StringForKanaConverter(converter.HankakuKatakanaToZenkakuHiragana(converter.GenerateForKanaConverter(tt.args.in), tt.args.v)); got != tt.want {
 				t.Errorf("%v is converted %v, want %v", tt.args.in, got, tt.want)
 			}
 		})
@@ -624,7 +624,7 @@ func TestZenkakuKatakanaToZenkakuHiragana(t *testing.T) {
 
 			t.Parallel()
 
-			if got := converter.String(converter.ZenkakuKatakanaToZenkakuHiragana(converter.Generate(tt.args.in))); got != tt.want {
+			if got := converter.StringForKanaConverter(converter.ZenkakuKatakanaToZenkakuHiragana(converter.GenerateForKanaConverter(tt.args.in))); got != tt.want {
 				t.Errorf("%v is converted %v, want %v", tt.args.in, got, tt.want)
 			}
 		})
@@ -677,7 +677,7 @@ func TestZenkakuHiraganaToZenkakuKatakana(t *testing.T) {
 
 			t.Parallel()
 
-			if got := converter.String(converter.ZenkakuHiraganaToZenkakuKatakana(converter.Generate(tt.args.in))); got != tt.want {
+			if got := converter.StringForKanaConverter(converter.ZenkakuHiraganaToZenkakuKatakana(converter.GenerateForKanaConverter(tt.args.in))); got != tt.want {
 				t.Errorf("%v is converted %v, want %v", tt.args.in, got, tt.want)
 			}
 		})
@@ -696,44 +696,94 @@ func TestNewKanaConverters(t *testing.T) {
 		wantErr bool
 	}{
 		{
+			name: "hankaku english -> zenkaku english and zenkaku space -> hankaku space",
+			args: args{in: "Ｔｈｅ　ｑｕｉｃｋ　ｂｒｏｗｎ　ｆｏｘ　ｊｕｍｐｓ　ｏｖｅｒ　ｔｈｅ　ｌａｚｙ　ｄｏｇ.", mode: "rs"},
+			want: "The quick brown fox jumps over the lazy dog.",
+		},
+		{
 			name: "hankaku english -> zenkaku english and hankaku space -> zenkaku space",
 			args: args{in: "The quick brown fox jumps over the lazy dog.", mode: "RS"},
 			want: "Ｔｈｅ　ｑｕｉｃｋ　ｂｒｏｗｎ　ｆｏｘ　ｊｕｍｐｓ　ｏｖｅｒ　ｔｈｅ　ｌａｚｙ　ｄｏｇ.",
 		},
 		{
-			name: "hankaku english -> zenkaku english and hankaku space -> zenkaku space",
+			name: "zenkaku english -> hankaku english and zenkaku number -> hankaku number",
 			args: args{in: "１６００ Ｐｅｎｎｓｙｌｖａｎｉａ Ａｖｅｎｕｅ", mode: "rn"},
 			want: "1600 Pennsylvania Avenue",
 		},
 		{
-			name: "hankaku english -> zenkaku english and hankaku space -> zenkaku space: shorthand version",
+			name: "zenkaku english -> hankaku english and zenkaku number -> hankaku number: shorthand version",
 			args: args{in: "１６００ Ｐｅｎｎｓｙｌｖａｎｉａ Ａｖｅｎｕｅ", mode: "a"},
 			want: "1600 Pennsylvania Avenue",
 		},
 		{
-			name: "hankaku english -> zenkaku english and hankaku space -> zenkaku space: verbose version",
+			name: "zenkaku english -> hankaku english and zenkaku number -> hankaku number: verbose version",
 			args: args{in: "１６００ Ｐｅｎｎｓｙｌｖａｎｉａ Ａｖｅｎｕｅ", mode: "arn"},
 			want: "1600 Pennsylvania Avenue",
 		},
 		{
-			name: "hankaku english -> zenkaku english and hankaku space -> zenkaku space",
+			name: "hankaku english -> zenkaku english and hankaku number -> zenkaku number",
+			args: args{in: "1600 Pennsylvania Avenue", mode: "RN"},
+			want: "１６００ Ｐｅｎｎｓｙｌｖａｎｉａ Ａｖｅｎｕｅ",
+		},
+		{
+			name: "hankaku english -> zenkaku english and hankaku number -> zenkaku number: shorthand version",
+			args: args{in: "1600 Pennsylvania Avenue", mode: "A"},
+			want: "１６００ Ｐｅｎｎｓｙｌｖａｎｉａ Ａｖｅｎｕｅ",
+		},
+		{
+			name: "hankaku english -> zenkaku english and hankaku number -> zenkaku number: verbose version",
+			args: args{in: "1600 Pennsylvania Avenue", mode: "ARN"},
+			want: "１６００ Ｐｅｎｎｓｙｌｖａｎｉａ Ａｖｅｎｕｅ",
+		},
+		{
+			name: "zenkaku english -> hankaku english and hankaku number -> zenkaku number",
 			args: args{in: "1600 Ｐｅｎｎｓｙｌｖａｎｉａ Ａｖｅｎｕｅ", mode: "rN"},
 			want: "１６００ Pennsylvania Avenue",
 		},
 		{
-			name: "hankaku english -> zenkaku english and hankaku space -> zenkaku space",
+			name: "hankaku english -> zenkaku english and zenkaku number -> hanaku number",
 			args: args{in: "１６００ Pennsylvania Avenue", mode: "Rn"},
 			want: "1600 Ｐｅｎｎｓｙｌｖａｎｉａ Ａｖｅｎｕｅ",
 		},
 		{
-			name: "zenkaku hiragana -> zekaku katakana and zenkaku space -> hankanu space",
+			name: "zenkaku space -> hankaku space and zenkaku katakana -> hankaku katakana",
+			args: args{in: "イロハニホヘト　チリヌルヲ　ワカヨタレソ　ツネナラム　ウヰノオクヤマ　ケフコエテ　アサキユメミシ　ヱヒモセス", mode: "sk"},
+			want: "ｲﾛﾊﾆﾎﾍﾄ ﾁﾘﾇﾙｦ ﾜｶﾖﾀﾚｿ ﾂﾈﾅﾗﾑ ｳｲﾉｵｸﾔﾏ ｹﾌｺｴﾃ ｱｻｷﾕﾒﾐｼ ｴﾋﾓｾｽ",
+		},
+		{
+			name: "hankaku space -> zenkaku space and zenkaku katakana -> hankaku katakana",
+			args: args{in: "イロハニホヘト チリヌルヲ ワカヨタレソ ツネナラム ウヰノオクヤマ ケフコエテ アサキユメミシ ヱヒモセス", mode: "Sk"},
+			want: "ｲﾛﾊﾆﾎﾍﾄ　ﾁﾘﾇﾙｦ　ﾜｶﾖﾀﾚｿ　ﾂﾈﾅﾗﾑ　ｳｲﾉｵｸﾔﾏ　ｹﾌｺｴﾃ　ｱｻｷﾕﾒﾐｼ　ｴﾋﾓｾｽ",
+		},
+		{
+			name: "zenkaku space -> hankaku space and hankaku katakana -> zenkaku katakana",
+			args: args{in: "ｱｷﾉﾀﾉ　ｶﾘﾎﾉｲﾎﾉ　ﾄﾏｦｱﾗﾐ　ﾜｶﾞｺﾛﾓﾃﾞﾊ　ﾂﾕﾆﾇﾚﾂﾂ", mode: "sK"},
+			want: "アキノタノ カリホノイホノ トマヲアラミ ワカ゛コロモテ゛ハ ツユニヌレツツ",
+		},
+		{
+			name: "hankaku space -> zenkaku space and hankaku katakana -> zenkaku katakana",
+			args: args{in: "ｱｷﾉﾀﾉ ｶﾘﾎﾉｲﾎﾉ ﾄﾏｦｱﾗﾐ ﾜｶﾞｺﾛﾓﾃﾞﾊ ﾂﾕﾆﾇﾚﾂﾂ", mode: "SK"},
+			want: "アキノタノ　カリホノイホノ　トマヲアラミ　ワカ゛コロモテ゛ハ　ツユニヌレツツ",
+		},
+		{
+			name: "zenkaku space -> hankaku space and zenkaku katakana -> zenkaku hiragana",
+			args: args{in: "イロハニホヘト　チリヌルヲ　ワカヨタレソ　ツネナラム　ウヰノオクヤマ　ケフコエテ　アサキユメミシ　ヱヒモセス", mode: "sc"},
+			want: "いろはにほへと ちりぬるを わかよたれそ つねならむ うゐのおくやま けふこえて あさきゆめみし ゑひもせす",
+		},
+		{
+			name: "hankaku space -> zenkaku space and zenkaku katakana -> zenkaku hiragana",
+			args: args{in: "イロハニホヘト チリヌルヲ ワカヨタレソ ツネナラム ウヰノオクヤマ ケフコエテ アサキユメミシ ヱヒモセス", mode: "Sc"},
+			want: "いろはにほへと　ちりぬるを　わかよたれそ　つねならむ　うゐのおくやま　けふこえて　あさきゆめみし　ゑひもせす",
+		},
+		{
+			name: "zenkaku space -> hankaku space and zenkaku hiragana -> zekaku katakana",
 			args: args{in: "いろはにほへと　ちりぬるを　わかよたれそ　つねならむ　うゐのおくやま　けふこえて　あさきゆめみし　ゑひもせす", mode: "sC"},
 			want: "イロハニホヘト チリヌルヲ ワカヨタレソ ツネナラム ウヰノオクヤマ ケフコエテ アサキユメミシ ヱヒモセス",
 		},
 		{
-			name: "zenkaku katakana -> zenkaku hiragana",
-			args: args{in: "イロハニホヘト　チリヌルヲ　ワカヨタレソ　ツネナラム　ウヰノオクヤマ　ケフコエテ　アサキユメミシ　ヱヒモセス", mode: "c"},
-			want: "いろはにほへと　ちりぬるを　わかよたれそ　つねならむ　うゐのおくやま　けふこえて　あさきゆめみし　ゑひもせす",
+			name: "hankaku space -> zenkaku space and zenkaku hiragana -> zekaku katakana",
+			args: args{in: "いろはにほへと ちりぬるを わかよたれそ つねならむ うゐのおくやま けふこえて あさきゆめみし ゑひもせす", mode: "SC"},
+			want: "イロハニホヘト　チリヌルヲ　ワカヨタレソ　ツネナラム　ウヰノオクヤマ　ケフコエテ　アサキユメミシ　ヱヒモセス",
 		},
 		{
 			name: "zenkaku katakana and zenkaku hiragana -> hankaku katakana",
@@ -751,6 +801,16 @@ func TestNewKanaConverters(t *testing.T) {
 			want: "「ホ゛ールヘ゜ンの芯の太さは、0.7mmです。」",
 		},
 		{
+			name: "hankaku english -> zenkaku english, hankaku number -> zenkaku number and hankaku katakana -> zenkaku katakana",
+			args: args{in: "｢ﾎﾞｰﾙﾍﾟﾝの芯の太さは､0.7mmです｡｣", mode: "AK"},
+			want: "「ホ゛ールヘ゜ンの芯の太さは、０.７ｍｍです。」",
+		},
+		{
+			name: "zenkaku hiragana -> hanaku katakana",
+			args: args{in: "「ボールペンの芯の太さは、0.7mmです。」", mode: "h"},
+			want: "｢ボｰルペンﾉ芯ﾉ太ｻﾊ､0.7mmﾃﾞｽ｡｣",
+		},
+		{
 			name: "hankaku katakana -> zenkaku hiragana: ligature version",
 			args: args{in: "｢ボールペンﾉ芯ﾉ太ｻﾊ､0.7mmﾃﾞｽ｡｣", mode: "HV"},
 			want: "「ボールペンの芯の太さは、0.7mmです。」",
@@ -759,6 +819,11 @@ func TestNewKanaConverters(t *testing.T) {
 			name: "hankaku katakana -> zenkaku hiragana",
 			args: args{in: "｢ボールペンﾉ芯ﾉ太ｻﾊ､0.7mmﾃﾞｽ｡｣", mode: "H"},
 			want: "「ボールペンの芯の太さは、0.7mmて゛す。」",
+		},
+		{
+			name: "hankaku english -> zenkaku english, hankaku number -> zenkaku number and hankaku katakana -> zenkaku hiragana",
+			args: args{in: "｢ボールペンﾉ芯ﾉ太ｻﾊ､0.7mmﾃﾞｽ｡｣", mode: "AH"},
+			want: "「ボールペンの芯の太さは、０.７ｍｍて゛す。」",
 		},
 		{
 			name: "zenkaku katakana -> zekaku hiragana",
@@ -779,6 +844,46 @@ func TestNewKanaConverters(t *testing.T) {
 			name: "hankaku english -> zenkaku english, hankaku number -> zenkaku number and zenkaku hiragana -> zekaku katakana",
 			args: args{in: "「ボールペンﾉ芯ﾉ太ｻﾊ、0.7mmﾃﾞｽ。」", mode: "kHV"},
 			want: "｢ﾎﾞｰﾙﾍﾟﾝの芯の太さは､0.7mmです｡｣",
+		},
+		{
+			name: "hankaku english -> zenkaku english, hankaku number -> zenkaku number and zenkaku hiragana -> zekaku katakana",
+			args: args{in: "「ﾎﾞｰﾙﾍﾟﾝの芯の太さは、0.7mmです。」", mode: "KhV"},
+			want: "｢ボールペンﾉ芯ﾉ太ｻﾊ､0.7mmﾃﾞｽ｡｣",
+		},
+		{
+			name: "hankaku katakana -> zenkaku katakana: ligature version: single character",
+			args: args{in: "ｳ", mode: "KV"},
+			want: "ウ",
+		},
+		{
+			name: "hankaku katakana -> zenkaku hiragana: ligature version: single character",
+			args: args{in: "ｳ", mode: "HV"},
+			want: "う",
+		},
+		{
+			name: "hankaku katakana -> zenkaku katakana: ligature version: will be voiced sound and will not be semi-voiced sound",
+			args: args{in: "ｳﾟ", mode: "KV"},
+			want: "ウ゜",
+		},
+		{
+			name: "hankaku katakana -> zenkaku hiragana: ligature version: will be voiced sound and will not be semi-voiced sound",
+			args: args{in: "ｳﾟ", mode: "HV"},
+			want: "う゜",
+		},
+		{
+			name: "zenkaku katakana -> hankaku katakana and hanaku katakana -> zenkaku hiragana: common symbol in katakana and hiragana",
+			args: args{in: "、。「」・ー゛゜､｡｢｣･ｰﾞﾟ", mode: "kH"},
+			want: "､｡｢｣･ｰﾞﾟ、。「」・ー゛゜",
+		},
+		{
+			name: "hankaku katakana -> zenkaku katakana and zenkaku katakana -> hankaku katakana: common symbol in katakana and hiragana",
+			args: args{in: "、。「」・ー゛゜､｡｢｣･ｰﾞﾟ", mode: "Kh"},
+			want: "､｡｢｣･ｰﾞﾟ、。「」・ー゛゜",
+		},
+		{
+			name: "hankaku katakana -> zenkaku hiragana and zenkaku hiragana -> zekaku katakana: common symbol in katakana and hiragana",
+			args: args{in: "、。「」・ー゛゜､｡｢｣･ｰﾞﾟ", mode: "HC"},
+			want: "、。「」・ー゛゜、。「」・ー゛゜",
 		},
 		{
 			name: "hankaku english -> zenkaku english, hankaku number -> zenkaku number and zenkaku hiragana -> zekaku katakana",
@@ -982,11 +1087,11 @@ func TestNewKanaConverters(t *testing.T) {
 				t.Errorf("NewKanaConverters() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			in := converter.Generate(tt.args.in)
+			in := converter.GenerateForKanaConverter(tt.args.in)
 			for _, c := range converters {
 				in = c(in)
 			}
-			if got := converter.String(in); got != tt.want {
+			if got := converter.StringForKanaConverter(in); got != tt.want {
 				t.Errorf("%v is converted %v, want %v", tt.args.mode, got, tt.want)
 			}
 		})
