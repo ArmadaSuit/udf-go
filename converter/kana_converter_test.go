@@ -6,82 +6,6 @@ import (
 	"github.com/ArmadaSuit/udf-go/converter"
 )
 
-func TestHankakuNumberToZenkakuNumber(t *testing.T) {
-	type args struct {
-		in string
-	}
-	tests := []struct {
-		name string
-		args args
-		want string
-	}{
-		{
-			name: "english",
-			args: args{in: "The quick brown fox jumps over the lazy dog."},
-			want: "The quick brown fox jumps over the lazy dog.",
-		},
-		{
-			name: "zenkaku hiragana",
-			args: args{in: "いろはにほへと　ちりぬるを　わかよたれそ　つねならむ　うゐのおくやま　けふこえて　あさきゆめみし　ゑひもせす"},
-			want: "いろはにほへと　ちりぬるを　わかよたれそ　つねならむ　うゐのおくやま　けふこえて　あさきゆめみし　ゑひもせす",
-		},
-		{
-			name: "numbers",
-			args: args{in: "0123456789"},
-			want: "０１２３４５６７８９",
-		},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-
-			t.Parallel()
-
-			if got := converter.StringForKanaConverter(converter.HankakuNumberToZenkakuNumber(converter.GenerateForKanaConverter(tt.args.in))); got != tt.want {
-				t.Errorf("%v is converted %v, want %v", tt.args.in, got, tt.want)
-			}
-		})
-	}
-}
-
-func TestZenkakuNumberToHankakuNumber(t *testing.T) {
-	type args struct {
-		in string
-	}
-	tests := []struct {
-		name string
-		args args
-		want string
-	}{
-		{
-			name: "english",
-			args: args{in: "The quick brown fox jumps over the lazy dog."},
-			want: "The quick brown fox jumps over the lazy dog.",
-		},
-		{
-			name: "zenkaku hiragana",
-			args: args{in: "いろはにほへと　ちりぬるを　わかよたれそ　つねならむ　うゐのおくやま　けふこえて　あさきゆめみし　ゑひもせす"},
-			want: "いろはにほへと　ちりぬるを　わかよたれそ　つねならむ　うゐのおくやま　けふこえて　あさきゆめみし　ゑひもせす",
-		},
-		{
-			name: "numbers",
-			args: args{in: "０１２３４５６７８９"},
-			want: "0123456789",
-		},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-
-			t.Parallel()
-
-			if got := converter.StringForKanaConverter(converter.ZenkakuNumberToHankakuNumber(converter.GenerateForKanaConverter(tt.args.in))); got != tt.want {
-				t.Errorf("%v is converted %v, want %v", tt.args.in, got, tt.want)
-			}
-		})
-	}
-}
-
 func TestHankakuEnglishToZenkakuEnglish(t *testing.T) {
 	type args struct {
 		in string
@@ -162,6 +86,82 @@ func TestZenkakuEnglishToHankakuEnglish(t *testing.T) {
 			t.Parallel()
 
 			if got := converter.StringForKanaConverter(converter.ZenkakuEnglishToHankakuEnglish(converter.GenerateForKanaConverter(tt.args.in))); got != tt.want {
+				t.Errorf("%v is converted %v, want %v", tt.args.in, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestHankakuNumberToZenkakuNumber(t *testing.T) {
+	type args struct {
+		in string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			name: "english",
+			args: args{in: "The quick brown fox jumps over the lazy dog."},
+			want: "The quick brown fox jumps over the lazy dog.",
+		},
+		{
+			name: "zenkaku hiragana",
+			args: args{in: "いろはにほへと　ちりぬるを　わかよたれそ　つねならむ　うゐのおくやま　けふこえて　あさきゆめみし　ゑひもせす"},
+			want: "いろはにほへと　ちりぬるを　わかよたれそ　つねならむ　うゐのおくやま　けふこえて　あさきゆめみし　ゑひもせす",
+		},
+		{
+			name: "numbers",
+			args: args{in: "0123456789"},
+			want: "０１２３４５６７８９",
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+
+			t.Parallel()
+
+			if got := converter.StringForKanaConverter(converter.HankakuNumberToZenkakuNumber(converter.GenerateForKanaConverter(tt.args.in))); got != tt.want {
+				t.Errorf("%v is converted %v, want %v", tt.args.in, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestZenkakuNumberToHankakuNumber(t *testing.T) {
+	type args struct {
+		in string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			name: "english",
+			args: args{in: "The quick brown fox jumps over the lazy dog."},
+			want: "The quick brown fox jumps over the lazy dog.",
+		},
+		{
+			name: "zenkaku hiragana",
+			args: args{in: "いろはにほへと　ちりぬるを　わかよたれそ　つねならむ　うゐのおくやま　けふこえて　あさきゆめみし　ゑひもせす"},
+			want: "いろはにほへと　ちりぬるを　わかよたれそ　つねならむ　うゐのおくやま　けふこえて　あさきゆめみし　ゑひもせす",
+		},
+		{
+			name: "numbers",
+			args: args{in: "０１２３４５６７８９"},
+			want: "0123456789",
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+
+			t.Parallel()
+
+			if got := converter.StringForKanaConverter(converter.ZenkakuNumberToHankakuNumber(converter.GenerateForKanaConverter(tt.args.in))); got != tt.want {
 				t.Errorf("%v is converted %v, want %v", tt.args.in, got, tt.want)
 			}
 		})
