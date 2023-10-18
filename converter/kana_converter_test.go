@@ -21,19 +21,14 @@ func TestHankakuEnglishToZenkakuEnglish(t *testing.T) {
 			want: "Ｔｈｅ ｑｕｉｃｋ ｂｒｏｗｎ ｆｏｘ ｊｕｍｐｓ ｏｖｅｒ ｔｈｅ ｌａｚｙ ｄｏｇ.",
 		},
 		{
-			name: "all english alphabet",
-			args: args{in: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"},
-			want: "ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ",
-		},
-		{
 			name: "zenkaku hiragana",
 			args: args{in: "いろはにほへと　ちりぬるを　わかよたれそ　つねならむ　うゐのおくやま　けふこえて　あさきゆめみし　ゑひもせす"},
 			want: "いろはにほへと　ちりぬるを　わかよたれそ　つねならむ　うゐのおくやま　けふこえて　あさきゆめみし　ゑひもせす",
 		},
 		{
-			name: "numbers",
-			args: args{in: "0123456789"},
-			want: "0123456789",
+			name: "ascii",
+			args: args{in: " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"},
+			want: " !\"#$%&'()*+,-./0123456789:;<=>?@ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ[\\]^_`ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ{|}~",
 		},
 	}
 	for _, tt := range tests {
@@ -64,19 +59,14 @@ func TestZenkakuEnglishToHankakuEnglish(t *testing.T) {
 			want: "The quick brown fox jumps over the lazy dog.",
 		},
 		{
-			name: "all english alphabet",
-			args: args{in: "ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ"},
-			want: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
-		},
-		{
 			name: "zenkaku hiragana",
 			args: args{in: "いろはにほへと　ちりぬるを　わかよたれそ　つねならむ　うゐのおくやま　けふこえて　あさきゆめみし　ゑひもせす"},
 			want: "いろはにほへと　ちりぬるを　わかよたれそ　つねならむ　うゐのおくやま　けふこえて　あさきゆめみし　ゑひもせす",
 		},
 		{
-			name: "numbers",
-			args: args{in: "0123456789"},
-			want: "0123456789",
+			name: "ascii",
+			args: args{in: " ！”＃＄％＆＇（）＊＋，－．／０１２３４５６７８９：；＜＝＞？＠ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ［＼］＾＿｀ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ｛｜｝～"},
+			want: " ！”＃＄％＆＇（）＊＋，－．／０１２３４５６７８９：；＜＝＞？＠ABCDEFGHIJKLMNOPQRSTUVWXYZ［＼］＾＿｀abcdefghijklmnopqrstuvwxyz｛｜｝～",
 		},
 	}
 	for _, tt := range tests {
@@ -112,9 +102,9 @@ func TestHankakuNumberToZenkakuNumber(t *testing.T) {
 			want: "いろはにほへと　ちりぬるを　わかよたれそ　つねならむ　うゐのおくやま　けふこえて　あさきゆめみし　ゑひもせす",
 		},
 		{
-			name: "numbers",
-			args: args{in: "0123456789"},
-			want: "０１２３４５６７８９",
+			name: "ascii",
+			args: args{in: " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"},
+			want: " !\"#$%&'()*+,-./０１２３４５６７８９:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~",
 		},
 	}
 	for _, tt := range tests {
@@ -150,9 +140,9 @@ func TestZenkakuNumberToHankakuNumber(t *testing.T) {
 			want: "いろはにほへと　ちりぬるを　わかよたれそ　つねならむ　うゐのおくやま　けふこえて　あさきゆめみし　ゑひもせす",
 		},
 		{
-			name: "numbers",
-			args: args{in: "０１２３４５６７８９"},
-			want: "0123456789",
+			name: "ascii",
+			args: args{in: " ！”＃＄％＆＇（）＊＋，－．／０１２３４５６７８９：；＜＝＞？＠ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ［＼］＾＿｀ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ｛｜｝～"},
+			want: " ！”＃＄％＆＇（）＊＋，－．／0123456789：；＜＝＞？＠ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ［＼］＾＿｀ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ｛｜｝～",
 		},
 	}
 	for _, tt := range tests {
@@ -162,6 +152,82 @@ func TestZenkakuNumberToHankakuNumber(t *testing.T) {
 			t.Parallel()
 
 			if got := converter.StringForKanaConverter(converter.ZenkakuNumberToHankakuNumber(converter.GenerateForKanaConverter(tt.args.in))); got != tt.want {
+				t.Errorf("%v is converted %v, want %v", tt.args.in, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestHankakuEnglishNumberToZenkakuEnglishNumber(t *testing.T) {
+	type args struct {
+		in string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			name: "english",
+			args: args{in: "The quick brown fox jumps over the lazy dog."},
+			want: "Ｔｈｅ ｑｕｉｃｋ ｂｒｏｗｎ ｆｏｘ ｊｕｍｐｓ ｏｖｅｒ ｔｈｅ ｌａｚｙ ｄｏｇ．",
+		},
+		{
+			name: "zenkaku hiragana",
+			args: args{in: "いろはにほへと　ちりぬるを　わかよたれそ　つねならむ　うゐのおくやま　けふこえて　あさきゆめみし　ゑひもせす"},
+			want: "いろはにほへと　ちりぬるを　わかよたれそ　つねならむ　うゐのおくやま　けふこえて　あさきゆめみし　ゑひもせす",
+		},
+		{
+			name: "ascii",
+			args: args{in: " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"},
+			want: " ！\"＃＄％＆'（）＊＋，－．／０１２３４５６７８９：；＜＝＞？＠ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ［\\］＾＿｀ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ｛｜｝~",
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+
+			t.Parallel()
+
+			if got := converter.StringForKanaConverter(converter.HankakuEnglishNumberToZenkakuEnglishNumber(converter.GenerateForKanaConverter(tt.args.in))); got != tt.want {
+				t.Errorf("%v is converted %v, want %v", tt.args.in, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestZenkakuEnglishNumberToHankakuEnglishNumber(t *testing.T) {
+	type args struct {
+		in string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			name: "english",
+			args: args{in: "Ｔｈｅ ｑｕｉｃｋ ｂｒｏｗｎ ｆｏｘ ｊｕｍｐｓ ｏｖｅｒ ｔｈｅ ｌａｚｙ ｄｏｇ．"},
+			want: "The quick brown fox jumps over the lazy dog.",
+		},
+		{
+			name: "zenkaku hiragana",
+			args: args{in: "いろはにほへと　ちりぬるを　わかよたれそ　つねならむ　うゐのおくやま　けふこえて　あさきゆめみし　ゑひもせす"},
+			want: "いろはにほへと　ちりぬるを　わかよたれそ　つねならむ　うゐのおくやま　けふこえて　あさきゆめみし　ゑひもせす",
+		},
+		{
+			name: "ascii",
+			args: args{in: " ！”＃＄％＆＇（）＊＋，－．／０１２３４５６７８９：；＜＝＞？＠ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ［＼］＾＿｀ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ｛｜｝～"},
+			want: " !”#$%&＇()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[＼]^_`abcdefghijklmnopqrstuvwxyz{|}～",
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+
+			t.Parallel()
+
+			if got := converter.StringForKanaConverter(converter.ZenkakuEnglishNumberToHankakuEnglishNumber(converter.GenerateForKanaConverter(tt.args.in))); got != tt.want {
 				t.Errorf("%v is converted %v, want %v", tt.args.in, got, tt.want)
 			}
 		})
@@ -706,34 +772,34 @@ func TestNewKanaConverters(t *testing.T) {
 			want: "Ｔｈｅ　ｑｕｉｃｋ　ｂｒｏｗｎ　ｆｏｘ　ｊｕｍｐｓ　ｏｖｅｒ　ｔｈｅ　ｌａｚｙ　ｄｏｇ.",
 		},
 		{
-			name: "zenkaku english -> hankaku english and zenkaku number -> hankaku number",
-			args: args{in: "１６００ Ｐｅｎｎｓｙｌｖａｎｉａ Ａｖｅｎｕｅ", mode: "rn"},
-			want: "1600 Pennsylvania Avenue",
+			name: "zenkaku english -> hankaku english and zenkaku number -> hankaku number: exclude marks",
+			args: args{in: " ！”＃＄％＆＇（）＊＋，－．／０１２３４５６７８９：；＜＝＞？＠ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ［＼］＾＿｀ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ｛｜｝～", mode: "rn"},
+			want: " ！”＃＄％＆＇（）＊＋，－．／0123456789：；＜＝＞？＠ABCDEFGHIJKLMNOPQRSTUVWXYZ［＼］＾＿｀abcdefghijklmnopqrstuvwxyz｛｜｝～",
 		},
 		{
-			name: "zenkaku english -> hankaku english and zenkaku number -> hankaku number: shorthand version",
-			args: args{in: "１６００ Ｐｅｎｎｓｙｌｖａｎｉａ Ａｖｅｎｕｅ", mode: "a"},
-			want: "1600 Pennsylvania Avenue",
+			name: "zenkaku english -> hankaku english and zenkaku number -> hankaku number: include marks",
+			args: args{in: " ！”＃＄％＆＇（）＊＋，－．／０１２３４５６７８９：；＜＝＞？＠ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ［＼］＾＿｀ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ｛｜｝～", mode: "a"},
+			want: " !”#$%&＇()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[＼]^_`abcdefghijklmnopqrstuvwxyz{|}～",
 		},
 		{
-			name: "zenkaku english -> hankaku english and zenkaku number -> hankaku number: verbose version",
-			args: args{in: "１６００ Ｐｅｎｎｓｙｌｖａｎｉａ Ａｖｅｎｕｅ", mode: "arn"},
-			want: "1600 Pennsylvania Avenue",
+			name: "zenkaku english -> hankaku english and zenkaku number -> hankaku number: include marks: verbose version",
+			args: args{in: " ！”＃＄％＆＇（）＊＋，－．／０１２３４５６７８９：；＜＝＞？＠ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ［＼］＾＿｀ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ｛｜｝～", mode: "arn"},
+			want: " !”#$%&＇()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[＼]^_`abcdefghijklmnopqrstuvwxyz{|}～",
 		},
 		{
-			name: "hankaku english -> zenkaku english and hankaku number -> zenkaku number",
-			args: args{in: "1600 Pennsylvania Avenue", mode: "RN"},
-			want: "１６００ Ｐｅｎｎｓｙｌｖａｎｉａ Ａｖｅｎｕｅ",
+			name: "hankaku english -> zenkaku english and hankaku number -> zenkaku number: exclude marks",
+			args: args{in: " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~", mode: "RN"},
+			want: " !\"#$%&'()*+,-./０１２３４５６７８９:;<=>?@ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ[\\]^_`ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ{|}~",
 		},
 		{
-			name: "hankaku english -> zenkaku english and hankaku number -> zenkaku number: shorthand version",
-			args: args{in: "1600 Pennsylvania Avenue", mode: "A"},
-			want: "１６００ Ｐｅｎｎｓｙｌｖａｎｉａ Ａｖｅｎｕｅ",
+			name: "hankaku english -> zenkaku english and hankaku number -> zenkaku number: include marks",
+			args: args{in: " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~", mode: "A"},
+			want: " ！\"＃＄％＆'（）＊＋，－．／０１２３４５６７８９：；＜＝＞？＠ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ［\\］＾＿｀ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ｛｜｝~",
 		},
 		{
-			name: "hankaku english -> zenkaku english and hankaku number -> zenkaku number: verbose version",
-			args: args{in: "1600 Pennsylvania Avenue", mode: "ARN"},
-			want: "１６００ Ｐｅｎｎｓｙｌｖａｎｉａ Ａｖｅｎｕｅ",
+			name: "hankaku english -> zenkaku english and hankaku number -> zenkaku number: include marks: verbose version",
+			args: args{in: " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~", mode: "ARN"},
+			want: " ！\"＃＄％＆'（）＊＋，－．／０１２３４５６７８９：；＜＝＞？＠ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ［\\］＾＿｀ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ｛｜｝~",
 		},
 		{
 			name: "zenkaku english -> hankaku english and hankaku number -> zenkaku number",
@@ -803,7 +869,7 @@ func TestNewKanaConverters(t *testing.T) {
 		{
 			name: "hankaku english -> zenkaku english, hankaku number -> zenkaku number and hankaku katakana -> zenkaku katakana",
 			args: args{in: "｢ﾎﾞｰﾙﾍﾟﾝの芯の太さは､0.7mmです｡｣", mode: "AK"},
-			want: "「ホ゛ールヘ゜ンの芯の太さは、０.７ｍｍです。」",
+			want: "「ホ゛ールヘ゜ンの芯の太さは、０．７ｍｍです。」",
 		},
 		{
 			name: "zenkaku hiragana -> hanaku katakana",
@@ -823,7 +889,7 @@ func TestNewKanaConverters(t *testing.T) {
 		{
 			name: "hankaku english -> zenkaku english, hankaku number -> zenkaku number and hankaku katakana -> zenkaku hiragana",
 			args: args{in: "｢ボールペンﾉ芯ﾉ太ｻﾊ､0.7mmﾃﾞｽ｡｣", mode: "AH"},
-			want: "「ボールペンの芯の太さは、０.７ｍｍて゛す。」",
+			want: "「ボールペンの芯の太さは、０．７ｍｍて゛す。」",
 		},
 		{
 			name: "zenkaku katakana -> zekaku hiragana",
@@ -908,12 +974,12 @@ func TestNewKanaConverters(t *testing.T) {
 		{
 			name: "hankaku english -> zenkaku english, hankaku number -> zenkaku number and zenkaku katakana -> zekaku hiragana",
 			args: args{in: "「ボールペンの芯の太さは、0.7mmです。」", mode: "Ac"},
-			want: "「ぼーるぺんの芯の太さは、０.７ｍｍです。」",
+			want: "「ぼーるぺんの芯の太さは、０．７ｍｍです。」",
 		},
 		{
 			name: "hankaku english -> zenkakuenglish, hankaku number -> zenkaku number and zenkaku hiragana -> zekaku katakana",
 			args: args{in: "「ボールペンの芯の太さは、0.7mmです。」", mode: "AC"},
-			want: "「ボールペンノ芯ノ太サハ、０.７ｍｍデス。」",
+			want: "「ボールペンノ芯ノ太サハ、０．７ｍｍデス。」",
 		},
 		{
 			name:    "invalid option for english",

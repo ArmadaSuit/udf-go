@@ -87,6 +87,50 @@ func ZenkakuNumberToHankakuNumber(in <-chan KanaConverterRune) <-chan KanaConver
 	return out
 }
 
+func HankakuEnglishNumberToZenkakuEnglishNumber(in <-chan KanaConverterRune) <-chan KanaConverterRune {
+	out := make(chan KanaConverterRune)
+	go func() {
+		defer close(out)
+		for r := range in {
+			if r.IsConverted {
+				out <- r
+				continue
+			}
+			switch {
+			case r.Rune == '\u0022', r.Rune == '\u0027', r.Rune == '\u005C', r.Rune == '\u007E':
+				out <- r
+			case r.Rune >= '\u0021' && r.Rune <= '\u007E':
+				out <- KanaConverterRune{Rune: r.Rune + 0xFEE0, IsConverted: true}
+			default:
+				out <- r
+			}
+		}
+	}()
+	return out
+}
+
+func ZenkakuEnglishNumberToHankakuEnglishNumber(in <-chan KanaConverterRune) <-chan KanaConverterRune {
+	out := make(chan KanaConverterRune)
+	go func() {
+		defer close(out)
+		for r := range in {
+			if r.IsConverted {
+				out <- r
+				continue
+			}
+			switch {
+			case r.Rune == '\uFF02', r.Rune == '\uFF07', r.Rune == '\uFF3C', r.Rune == '\uFF5E':
+				out <- r
+			case r.Rune >= '\uFF01' && r.Rune <= '\uFF5E':
+				out <- KanaConverterRune{Rune: r.Rune - 0xFEE0, IsConverted: true}
+			default:
+				out <- r
+			}
+		}
+	}()
+	return out
+}
+
 func ZenkakuSpaceToHankakuSpace(in <-chan KanaConverterRune) <-chan KanaConverterRune {
 	out := make(chan KanaConverterRune)
 	go func() {
@@ -1133,20 +1177,10 @@ func NewKanaConverters(mode string) ([]func(<-chan KanaConverterRune) <-chan Kan
 		converters = append(converters, HankakuNumberToZenkakuNumber)
 	}
 	if options.opta {
-		if !options.optr {
-			converters = append(converters, ZenkakuEnglishToHankakuEnglish)
-		}
-		if !options.optn {
-			converters = append(converters, ZenkakuNumberToHankakuNumber)
-		}
+		converters = append(converters, ZenkakuEnglishNumberToHankakuEnglishNumber)
 	}
 	if options.optA {
-		if !options.optR {
-			converters = append(converters, HankakuEnglishToZenkakuEnglish)
-		}
-		if !options.optN {
-			converters = append(converters, HankakuNumberToZenkakuNumber)
-		}
+		converters = append(converters, HankakuEnglishNumberToZenkakuEnglishNumber)
 	}
 	if options.opts {
 		converters = append(converters, ZenkakuSpaceToHankakuSpace)
