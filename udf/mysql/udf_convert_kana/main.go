@@ -47,7 +47,7 @@ func udf_convert_kana_init(initid *C.UDF_INIT, args *C.UDF_ARGS, message *C.char
 }
 
 //export udf_convert_kana
-func udf_convert_kana(initid *C.UDF_INIT, args *C.UDF_ARGS, result *C.char, length *C.ulong, isNull *C.char, error *C.char) *C.char {
+func udf_convert_kana(initid *C.UDF_INIT, args *C.UDF_ARGS, result *C.char, length *C.ulong, isNull *C.char, err *C.char) *C.char {
 	argsArgs := unsafe.Slice(args.args, args.arg_count)
 	s := C.GoString(argsArgs[0])
 	in := converter.GenerateForKanaConverter(s)
