@@ -3,7 +3,6 @@ package main
 import (
 	/*
 		#include <postgres.h>
-		#include <fmgr.h>
 
 		extern Datum udf_convert_kana(PG_FUNCTION_ARGS);
 	*/
