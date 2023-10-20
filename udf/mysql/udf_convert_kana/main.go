@@ -12,8 +12,6 @@ import (
 	"github.com/ArmadaSuit/udf-go/converter"
 )
 
-var converters []func(<-chan converter.KanaConverterRune) <-chan converter.KanaConverterRune
-
 //export udf_convert_kana_init
 func udf_convert_kana_init(initid *C.UDF_INIT, args *C.UDF_ARGS, message *C.char) C.bool {
 	if args.arg_count != 2 {
@@ -34,8 +32,7 @@ func udf_convert_kana_init(initid *C.UDF_INIT, args *C.UDF_ARGS, message *C.char
 
 	argsArgs := unsafe.Slice(args.args, args.arg_count)
 
-	var err error
-	converters, err = converter.NewKanaConverters(C.GoString(argsArgs[1]))
+	_, err := converter.NewKanaConverterOptions(C.GoString(argsArgs[1]))
 	if err != nil {
 		m := C.CString(err.Error())
 		defer C.free(unsafe.Pointer(m))
@@ -49,6 +46,7 @@ func udf_convert_kana_init(initid *C.UDF_INIT, args *C.UDF_ARGS, message *C.char
 //export udf_convert_kana
 func udf_convert_kana(initid *C.UDF_INIT, args *C.UDF_ARGS, result *C.char, length *C.ulong, isNull *C.char, err *C.char) *C.char {
 	argsArgs := unsafe.Slice(args.args, args.arg_count)
+	converters, _ := converter.NewKanaConverters(C.GoString(argsArgs[1]))
 	s := C.GoString(argsArgs[0])
 	in := converter.GenerateForKanaConverter(s)
 	for _, c := range converters {
