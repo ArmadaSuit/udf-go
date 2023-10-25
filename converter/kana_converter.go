@@ -542,7 +542,7 @@ func HankakuKatakanaToZenkakuKatakana(in <-chan KanaConverterRune, v bool) <-cha
 					continue
 				}
 				switch r.Rune {
-				case 'ｦ', 'ｳ', 'ｶ', 'ｷ', 'ｸ', 'ｹ', 'ｺ', 'ｻ', 'ｼ', 'ｽ', 'ｾ', 'ｿ', 'ﾀ', 'ﾁ', 'ﾂ', 'ﾃ', 'ﾄ', 'ﾊ', 'ﾋ', 'ﾌ', 'ﾍ', 'ﾎ', 'ﾜ':
+				case 'ｳ', 'ｶ', 'ｷ', 'ｸ', 'ｹ', 'ｺ', 'ｻ', 'ｼ', 'ｽ', 'ｾ', 'ｿ', 'ﾀ', 'ﾁ', 'ﾂ', 'ﾃ', 'ﾄ', 'ﾊ', 'ﾋ', 'ﾌ', 'ﾍ', 'ﾎ':
 					if before != nil {
 						out <- hankakuKatakanaToZenkakuKatakanaSimple(*before)
 					}
@@ -1016,7 +1016,7 @@ func HankakuKatakanaToZenkakuHiragana(in <-chan KanaConverterRune, v bool) <-cha
 					continue
 				}
 				switch r.Rune {
-				case 'ｳ', 'ｶ', 'ｷ', 'ｸ', 'ｹ', 'ｺ', 'ｻ', 'ｼ', 'ｽ', 'ｾ', 'ｿ', 'ﾀ', 'ﾁ', 'ﾂ', 'ﾃ', 'ﾄ', 'ﾊ', 'ﾋ', 'ﾌ', 'ﾍ', 'ﾎ', 'ﾜ':
+				case 'ｶ', 'ｷ', 'ｸ', 'ｹ', 'ｺ', 'ｻ', 'ｼ', 'ｽ', 'ｾ', 'ｿ', 'ﾀ', 'ﾁ', 'ﾂ', 'ﾃ', 'ﾄ', 'ﾊ', 'ﾋ', 'ﾌ', 'ﾍ', 'ﾎ':
 					if before != nil {
 						out <- hankakuKatakanaToZenkakuHiraganaSimple(*before)
 					}
